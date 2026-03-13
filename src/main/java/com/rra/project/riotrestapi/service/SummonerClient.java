@@ -14,6 +14,7 @@ public class SummonerClient {
     private String apiKey;
 
     public RestClient getRegionClient(ServerID serverId) {
+        System.out.println(apiKey);
         return RestClient.builder()
                 .baseUrl(serverId.getRegion().getBaseUrl())
                 .defaultHeader("X-Riot-Token", apiKey)
