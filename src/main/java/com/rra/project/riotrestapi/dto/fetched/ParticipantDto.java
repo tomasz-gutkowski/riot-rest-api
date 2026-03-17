@@ -1,4 +1,4 @@
-package com.rra.project.riotrestapi.dto;
+package com.rra.project.riotrestapi.dto.fetched;
 
 public record ParticipantDto(
         int allInPings,
@@ -141,4 +141,8 @@ public record ParticipantDto(
         int wardsKilled,
         int wardsPlaced,
         boolean win
-) {}
+) {
+    public int getCreepScore() {
+        return this.totalMinionsKilled + this.neutralMinionsKilled;
+    }
+}

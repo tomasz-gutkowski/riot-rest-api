@@ -1,9 +1,10 @@
-package com.rra.project.riotrestapi.dto;
+package com.rra.project.riotrestapi.dto.fetched;
 
 import java.util.List;
 
 public record MetadataDto(
         String dataVersion,
         String matchId,
-        List<String> participants)
+        List<String> participants
+)
 {}

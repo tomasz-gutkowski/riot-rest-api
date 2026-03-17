@@ -1,8 +1,8 @@
 package com.rra.project.riotrestapi.service;
 
-import com.rra.project.riotrestapi.dto.AccountDto;
-import com.rra.project.riotrestapi.dto.LeagueEntryDto;
-import com.rra.project.riotrestapi.dto.SummonerDto;
+import com.rra.project.riotrestapi.dto.fetched.AccountDto;
+import com.rra.project.riotrestapi.dto.fetched.LeagueEntryDto;
+import com.rra.project.riotrestapi.dto.fetched.SummonerDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -49,6 +49,4 @@ public class SummonerClient {
                 .retrieve()
                 .body(LeagueEntryDto[].class);
     }
-
-
 }

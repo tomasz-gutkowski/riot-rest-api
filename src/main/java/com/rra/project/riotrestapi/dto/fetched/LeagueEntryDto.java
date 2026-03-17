@@ -1,4 +1,4 @@
-package com.rra.project.riotrestapi.dto;
+package com.rra.project.riotrestapi.dto.fetched;
 
 public record LeagueEntryDto(
         String leagueId,
