@@ -4,14 +4,16 @@ import com.rra.project.riotrestapi.dto.fetched.AccountDto;
 import com.rra.project.riotrestapi.dto.fetched.LeagueEntryDto;
 import com.rra.project.riotrestapi.dto.fetched.SummonerDto;
 
+import java.util.List;
+
 public record ProfileResponseDto(
         SummonerInfoDto summoner,
         LeagueInfoDto[] leagues,
-        MatchInfoDto[] matches
+        List<MatchInfoDto> matches
 )
 {
-    public static ProfileResponseDto from(SummonerDto summoner,AccountDto account, LeagueEntryDto[] leagues) {
-        return new ProfileResponseDto(SummonerInfoDto.from(summoner, account), LeagueInfoDto.from(leagues), null);
+    public static ProfileResponseDto from(SummonerDto summoner, AccountDto account, LeagueEntryDto[] leagues, List<MatchInfoDto> matchInfoDtos) {
+        return new ProfileResponseDto(SummonerInfoDto.from(summoner, account), LeagueInfoDto.from(leagues), matchInfoDtos);
     }
 
 }

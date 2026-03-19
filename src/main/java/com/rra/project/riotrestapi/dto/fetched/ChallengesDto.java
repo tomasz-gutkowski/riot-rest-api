@@ -1,5 +1,10 @@
 package com.rra.project.riotrestapi.dto.fetched;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.util.List;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record ChallengesDto(
         int assistStreakCount,
         double baronBuffGoldAdvantageOverThreshold,
@@ -48,7 +53,7 @@ public record ChallengesDto(
         double dodgeSkillShotsSmallWindow,
         double doubleAces,
         double dragonTakedowns,
-        double legendaryItemUsed,
+        List<Double> legendaryItemUsed,
         double effectiveHealAndShielding,
         double elderDragonKillsWithOpposingSoul,
         double elderDragonMultikills,

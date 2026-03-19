@@ -26,6 +26,6 @@ public class SummonerController {
                                                      @RequestParam(defaultValue = "0") int page,
                                                      @RequestParam(defaultValue = "20") int size) {
         //request Riot API for user's data
-        return summonerService.getProfileResponseDto(serverId, gameName, tagLine);
+        return summonerService.getProfileResponseDto(serverId, gameName, tagLine, page, size);
     }
 }
