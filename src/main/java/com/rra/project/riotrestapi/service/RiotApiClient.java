@@ -7,12 +7,14 @@ import com.rra.project.riotrestapi.dto.fetched.SummonerDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
 
 @Component
-public class SummonerClient {
+public class RiotApiClient {
 
     @Value("${riot.api.key}")
     private String apiKey;

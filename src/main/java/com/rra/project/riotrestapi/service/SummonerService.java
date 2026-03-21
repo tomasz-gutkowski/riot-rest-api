@@ -15,33 +15,33 @@ import java.util.List;
 @Service
 public class SummonerService {
 
-    private final SummonerClient summonerClient;
+    private final RiotApiClient riotApiClient;
 
-    SummonerService(SummonerClient summonerClient) {
-        this.summonerClient = summonerClient;
+    SummonerService(RiotApiClient riotApiClient) {
+        this.riotApiClient = riotApiClient;
     }
 
     public AccountDto getAccountDto(ServerID serverId, String gameName, String tagLine) {
-        return summonerClient.callForAccountDto(serverId, gameName, tagLine);
+        return riotApiClient.callForAccountDto(serverId, gameName, tagLine);
     }
 
-    public ProfileResponseDto getProfileResponseDto(ServerID serverId, String gameName, String tagLine, int page, int size) {
+    public ProfileResponseDto getProfileResponseDto(ServerID serverId, String gameName, String tagLine, int start, int count) {
         //put together basic data from multiple api calls to send to frontend
         AccountDto account = getAccountDto(serverId, gameName, tagLine);
         String puuid = account.puuid();
-        SummonerDto summoner = summonerClient.callForSummonerDto(serverId, puuid);
-        LeagueEntryDto[] leagueEntryDtoArr = summonerClient.callForLeagueEntryDtoArr(serverId, puuid);
-        List<MatchDto> matchDtos = getMatchDtos(serverId, puuid, page, size);
+        SummonerDto summoner = riotApiClient.callForSummonerDto(serverId, puuid);
+        LeagueEntryDto[] leagueEntryDtoArr = riotApiClient.callForLeagueEntryDtoArr(serverId, puuid);
+        List<MatchDto> matchDtos = getMatchDtos(serverId, puuid, start, count);
 
 
         return ProfileResponseDto.from(summoner, account, leagueEntryDtoArr, convertMatchDtoToMatchInfoDto(matchDtos, puuid));
     }
 
-    public List<MatchDto> getMatchDtos(ServerID serverId, String puuid, int page, int size) {
-        List<String> matches = summonerClient.callForMatchesList(serverId, puuid, page, size);
+    public List<MatchDto> getMatchDtos(ServerID serverId, String puuid, int start, int count) {
+        List<String> matches = riotApiClient.callForMatchesList(serverId, puuid, start, count);
         List<MatchDto> matchDtos = new ArrayList<>();
         for (String matchId : matches) {
-            matchDtos.add(summonerClient.callForMatchDto(serverId, matchId));
+            matchDtos.add(riotApiClient.callForMatchDto(serverId, matchId));
         }
         return matchDtos;
     }
