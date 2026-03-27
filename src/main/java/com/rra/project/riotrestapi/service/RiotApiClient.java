@@ -4,11 +4,12 @@ import com.rra.project.riotrestapi.dto.fetched.AccountDto;
 import com.rra.project.riotrestapi.dto.fetched.LeagueEntryDto;
 import com.rra.project.riotrestapi.dto.fetched.MatchDto;
 import com.rra.project.riotrestapi.dto.fetched.SummonerDto;
+import com.rra.project.riotrestapi.exceptions.code4xx.*;
+import com.rra.project.riotrestapi.exceptions.code5xx.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
@@ -34,37 +35,74 @@ public class RiotApiClient {
     }
 
     public AccountDto callForAccountDto(ServerID serverId, String gameName, String tagLine) {
-        return getRegionClient(serverId).get()
-                .uri("/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}", gameName, tagLine)
-                .retrieve()
+        // "/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}", gameName, tagLine
+        String uri = String.format("/riot/account/v1/accounts/by-riot-id/%s/%s", gameName, tagLine);
+        RestClient regionClient = getRegionClient(serverId);
+
+        return callRiotApi(regionClient, uri)
                 .body(AccountDto.class);
     }
 
     public SummonerDto callForSummonerDto(ServerID serverId, String puuid) {
-        return getServerClient(serverId).get()
-                .uri("/lol/summoner/v4/summoners/by-puuid/{puuid}", puuid)
-                .retrieve()
+        // "/lol/summoner/v4/summoners/by-puuid/{puuid}", puuid
+        String uri = String.format("/lol/summoner/v4/summoners/by-puuid/%s", puuid);
+        RestClient serverClient = getServerClient(serverId);
+
+        return callRiotApi(serverClient, uri)
                 .body(SummonerDto.class);
     }
 
     public LeagueEntryDto[] callForLeagueEntryDtoArr(ServerID serverId, String puuid) {
-        return getServerClient(serverId).get()
-                .uri("/lol/league/v4/entries/by-puuid/{puuid}", puuid)
-                .retrieve()
+        // "/lol/league/v4/entries/by-puuid/{puuid}", puuid
+        String uri = String.format("/lol/league/v4/entries/by-puuid/%s", puuid);
+        RestClient serverClient = getServerClient(serverId);
+
+        return callRiotApi(serverClient, uri)
                 .body(LeagueEntryDto[].class);
     }
 
     public List<String> callForMatchesList(ServerID serverId, String puuid, int start, int count) {
-        return getRegionClient(serverId).get()
-                .uri("/lol/match/v5/matches/by-puuid/{puuid}/ids?start={start}&count={count}", puuid, start, count)
-                .retrieve()
+        // "/lol/match/v5/matches/by-puuid/{puuid}/ids?start={start}&count={count}", puuid, start, count
+        String uri = String.format("/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d", puuid, start, count);
+        RestClient regionClient = getRegionClient(serverId);
+
+        return callRiotApi(regionClient, uri)
                 .body(new ParameterizedTypeReference<List<String>>() {});
     }
 
     public MatchDto callForMatchDto(ServerID serverId, String matchId) {
-        return getRegionClient(serverId).get()
-                .uri("/lol/match/v5/matches/{matchId}", matchId)
-                .retrieve()
+        // "lol/match/v5/matches/{matchId}", matchId
+        String uri = String.format("/lol/match/v5/matches/%s", matchId);
+        RestClient regionClient = getRegionClient(serverId);
+
+        return callRiotApi(regionClient, uri)
                 .body(MatchDto.class);
+    }
+
+    public RestClient.ResponseSpec callRiotApi(RestClient client, String uri){
+        return client.get()
+                .uri(uri)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, (request, response) ->{
+                    switch(response.getStatusCode().value()){
+                        case 400 -> throw new BadRequestException("Bad request");
+                        case 401 -> throw new UnauthorizedException("Unauthorized");
+                        case 403 -> throw new ForbiddenException("Forbidden");
+                        case 404 -> throw new ResourceNotFoundException("Resource not found");
+                        case 405 -> throw new MethodNotAllowedException("Method not allowed");
+                        case 415 -> throw new UnsupportedMediaTypeException("Unsupported media type");
+                        case 429 -> throw new RateLimitException("Rate limit exceeded");
+                        default  -> throw new BadRequestException("Client error: " + response.getStatusCode());
+                    }
+                })
+                .onStatus(HttpStatusCode::is5xxServerError, (request, response) ->{
+                    switch(response.getStatusCode().value()){
+                        case 500 -> throw new InternalServerErrorException("Internal server error");
+                        case 502 -> throw new BadGatewayException("Bad gateway");
+                        case 503 -> throw new ServiceUnavailableException("Service unavailable");
+                        case 504 -> throw new GatewayTimeoutException("Gateway timeout");
+                        default  -> throw new InternalServerErrorException("Server error: " + response.getStatusCode());
+                    }
+                });
     }
 }
