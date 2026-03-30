@@ -25,16 +25,13 @@ public class SummonerService {
         return riotApiClient.callForAccountDto(serverId, gameName, tagLine);
     }
 
-    public ProfileResponseDto getProfileResponseDto(ServerID serverId, String gameName, String tagLine, int start, int count) {
-        //put together basic data from multiple api calls to send to frontend
+    public ProfileResponseDto getProfileResponseDto(ServerID serverId, String gameName, String tagLine) {
         AccountDto account = getAccountDto(serverId, gameName, tagLine);
         String puuid = account.puuid();
         SummonerDto summoner = riotApiClient.callForSummonerDto(serverId, puuid);
         LeagueEntryDto[] leagueEntryDtoArr = riotApiClient.callForLeagueEntryDtoArr(serverId, puuid);
-        List<MatchDto> matchDtos = getMatchDtos(serverId, puuid, start, count);
 
-
-        return ProfileResponseDto.from(summoner, account, leagueEntryDtoArr, convertMatchDtoToMatchInfoDto(matchDtos, puuid));
+        return ProfileResponseDto.from(summoner, account, leagueEntryDtoArr);
     }
 
     public List<MatchDto> getMatchDtos(ServerID serverId, String puuid, int start, int count) {
@@ -46,11 +43,15 @@ public class SummonerService {
         return matchDtos;
     }
 
-    public List<MatchInfoDto> convertMatchDtoToMatchInfoDto(List<MatchDto> matchDtos, String puuid) {
+    public List<MatchInfoDto> getMatchInfoDtos(ServerID serverId, String name, String tagLine, int start, int count) {
+        String puuid = riotApiClient.callForAccountDto(serverId, name, tagLine).puuid();
+        List<MatchDto> matchDtos = getMatchDtos(serverId, puuid, start, count);
         List<MatchInfoDto> matchInfoDtos = new ArrayList<>();
+
         matchDtos.forEach(matchDto -> {
             matchInfoDtos.add(MatchInfoDto.from(puuid, matchDto));
         });
+
         return matchInfoDtos;
     }
 }

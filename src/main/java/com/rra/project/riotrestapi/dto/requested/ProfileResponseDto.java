@@ -8,12 +8,11 @@ import java.util.List;
 
 public record ProfileResponseDto(
         SummonerInfoDto summoner,
-        LeagueInfoDto[] leagues,
-        List<MatchInfoDto> matches
+        LeagueInfoDto[] leagues
 )
 {
-    public static ProfileResponseDto from(SummonerDto summoner, AccountDto account, LeagueEntryDto[] leagues, List<MatchInfoDto> matchInfoDtos) {
-        return new ProfileResponseDto(SummonerInfoDto.from(summoner, account), LeagueInfoDto.from(leagues), matchInfoDtos);
+    public static ProfileResponseDto from(SummonerDto summoner, AccountDto account, LeagueEntryDto[] leagues) {
+        return new ProfileResponseDto(SummonerInfoDto.from(summoner, account), LeagueInfoDto.from(leagues));
     }
 
 }
