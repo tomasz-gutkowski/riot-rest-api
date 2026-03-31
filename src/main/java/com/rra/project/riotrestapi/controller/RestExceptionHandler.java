@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.rra.project.riotrestapi.exceptions.code4xx.*;
 import com.rra.project.riotrestapi.exceptions.code5xx.*;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class RestExceptionHandler {
@@ -85,6 +86,12 @@ public class RestExceptionHandler {
     public ResponseEntity<ExceptionResponse> handleGatewayTimeout(
             GatewayTimeoutException ex, HttpServletRequest request) {
         return build(HttpStatus.GATEWAY_TIMEOUT, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ExceptionResponse> handleInputMismatch(
+            Exception ex, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST,"Invalid parameter", request);
     }
 
     //unexpected
