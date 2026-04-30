@@ -1,4 +1,4 @@
-package com.rra.project.riotrestapi.controller;
+package com.rra.project.riotrestapi.exceptions;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;

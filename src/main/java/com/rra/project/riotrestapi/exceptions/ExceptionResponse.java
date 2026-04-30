@@ -1,4 +1,4 @@
-package com.rra.project.riotrestapi.controller;
+package com.rra.project.riotrestapi.exceptions;
 
 import java.time.LocalDateTime;
 

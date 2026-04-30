@@ -3,7 +3,9 @@ package com.rra.project.riotrestapi.service;
 import com.rra.project.riotrestapi.dto.fetched.AccountDto;
 import com.rra.project.riotrestapi.dto.fetched.LeagueEntryDto;
 import com.rra.project.riotrestapi.dto.fetched.MatchDto;
+import com.rra.project.riotrestapi.dto.requested.MatchDetailsDto;
 import com.rra.project.riotrestapi.dto.requested.MatchInfoDto;
+import com.rra.project.riotrestapi.dto.requested.PlayerMatchStatsDto;
 import com.rra.project.riotrestapi.dto.requested.ProfileResponseDto;
 import com.rra.project.riotrestapi.dto.fetched.SummonerDto;
 
@@ -53,5 +55,13 @@ public class SummonerService {
         });
 
         return matchInfoDtos;
+    }
+
+    public MatchDetailsDto getMatchDetailsDto(String matchId) {
+        return null;
+    }
+
+    public PlayerMatchStatsDto getPlayerMatchStatsDto() {
+        return null;
     }
 }

@@ -3,6 +3,7 @@ package com.rra.project.riotrestapi.controller;
 
 
 
+import com.rra.project.riotrestapi.dto.requested.MatchDetailsDto;
 import com.rra.project.riotrestapi.dto.requested.MatchInfoDto;
 import com.rra.project.riotrestapi.dto.requested.ProfileResponseDto;
 import com.rra.project.riotrestapi.service.ServerID;
@@ -40,5 +41,10 @@ public class SummonerProfileController {
         return summonerService.getMatchInfoDtos(serverId, gameName, tagLine, start, count);
     }
 
+
+    @GetMapping("/api/match/{matchId}")
+    public MatchDetailsDto displayMatchDetails(@PathVariable String matchId) {
+        return summonerService.getMatchDetailsDto(matchId);
+    }
 
 }
