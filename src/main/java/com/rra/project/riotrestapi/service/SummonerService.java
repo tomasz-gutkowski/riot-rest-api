@@ -1,13 +1,7 @@
 package com.rra.project.riotrestapi.service;
 
-import com.rra.project.riotrestapi.dto.fetched.AccountDto;
-import com.rra.project.riotrestapi.dto.fetched.LeagueEntryDto;
-import com.rra.project.riotrestapi.dto.fetched.MatchDto;
-import com.rra.project.riotrestapi.dto.requested.MatchDetailsDto;
-import com.rra.project.riotrestapi.dto.requested.MatchInfoDto;
-import com.rra.project.riotrestapi.dto.requested.PlayerMatchStatsDto;
-import com.rra.project.riotrestapi.dto.requested.ProfileResponseDto;
-import com.rra.project.riotrestapi.dto.fetched.SummonerDto;
+import com.rra.project.riotrestapi.dto.fetched.*;
+import com.rra.project.riotrestapi.dto.requested.*;
 
 import org.springframework.stereotype.Service;
 
@@ -57,11 +51,12 @@ public class SummonerService {
         return matchInfoDtos;
     }
 
-    public MatchDetailsDto getMatchDetailsDto(String matchId) {
-        return null;
-    }
-
-    public PlayerMatchStatsDto getPlayerMatchStatsDto() {
-        return null;
+    public MatchDetailsDto getMatchDetailsDto(ServerID serverId, String matchId) {
+        ArrayList<PlayerDisplayInfoDto> playerDisplayInfoDtos = new ArrayList<>();
+        MatchDto match = riotApiClient.callForMatchDto(serverId, matchId);
+        for(ParticipantDto p : match.info().participants()){
+            playerDisplayInfoDtos.add(PlayerDisplayInfoDto.from(p));
+        }
+        return new MatchDetailsDto(playerDisplayInfoDtos);
     }
 }

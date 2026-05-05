@@ -41,10 +41,11 @@ public class SummonerProfileController {
         return summonerService.getMatchInfoDtos(serverId, gameName, tagLine, start, count);
     }
 
-
-    @GetMapping("/api/match/{matchId}")
-    public MatchDetailsDto displayMatchDetails(@PathVariable String matchId) {
-        return summonerService.getMatchDetailsDto(matchId);
+    //request for specific match data
+    @GetMapping("/api/match/{serverId}/{matchId}")
+    public MatchDetailsDto displayMatchDetails(@PathVariable ServerID serverId,
+                                                @PathVariable String matchId) {
+        return summonerService.getMatchDetailsDto(serverId,matchId);
     }
 
 }
