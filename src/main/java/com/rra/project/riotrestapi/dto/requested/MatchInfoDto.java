@@ -5,6 +5,7 @@ import com.rra.project.riotrestapi.dto.fetched.InfoDto;
 import com.rra.project.riotrestapi.dto.fetched.MatchDto;
 import com.rra.project.riotrestapi.dto.fetched.MetadataDto;
 import com.rra.project.riotrestapi.dto.fetched.ParticipantDto;
+import com.rra.project.riotrestapi.service.datadragon.DataDragonService;
 
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ public record MatchInfoDto(
         long gameCreation,
         long gameDuration
 ){
-    public static MatchInfoDto from(String ownerPuuid, MatchDto match){
+    public static MatchInfoDto from(String ownerPuuid, MatchDto match, DataDragonService dataDragonService){
         MetadataDto metadata = match.metadata();
         InfoDto info = match.info();
         List<ParticipantDto> participants = info.participants();
@@ -35,7 +36,7 @@ public record MatchInfoDto(
         }
         assert owner != null;
 
-        var ownerInfo = PlayerDisplayInfoDto.from(owner);
+        var ownerInfo = PlayerDisplayInfoDto.from(owner, dataDragonService);
 
         return new MatchInfoDto(
                 metadata.matchId(),

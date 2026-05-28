@@ -6,6 +6,8 @@ package com.rra.project.riotrestapi.controller;
 import com.rra.project.riotrestapi.dto.requested.MatchDetailsDto;
 import com.rra.project.riotrestapi.dto.requested.MatchInfoDto;
 import com.rra.project.riotrestapi.dto.requested.ProfileResponseDto;
+import com.rra.project.riotrestapi.service.datadragon.DataDragonClient;
+import com.rra.project.riotrestapi.service.datadragon.DataDragonService;
 import com.rra.project.riotrestapi.service.riotapi.ServerID;
 import com.rra.project.riotrestapi.service.riotapi.RiotApiService;
 import org.springframework.web.bind.annotation.*;

@@ -3,6 +3,7 @@ package com.rra.project.riotrestapi.service.riotapi;
 import com.rra.project.riotrestapi.dto.fetched.*;
 import com.rra.project.riotrestapi.dto.requested.*;
 
+import com.rra.project.riotrestapi.service.datadragon.DataDragonService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -12,9 +13,12 @@ import java.util.List;
 public class RiotApiService {
 
     private final RiotApiClient riotApiClient;
+    private final DataDragonService dataDragonService;
 
-    RiotApiService(RiotApiClient riotApiClient) {
+    RiotApiService(RiotApiClient riotApiClient, DataDragonService dataDragonService) {
+
         this.riotApiClient = riotApiClient;
+        this.dataDragonService = dataDragonService;
     }
 
     public AccountDto getAccountDto(ServerID serverId, String gameName, String tagLine) {
@@ -45,7 +49,7 @@ public class RiotApiService {
         List<MatchInfoDto> matchInfoDtos = new ArrayList<>();
 
         matchDtos.forEach(matchDto -> {
-            matchInfoDtos.add(MatchInfoDto.from(puuid, matchDto));
+            matchInfoDtos.add(MatchInfoDto.from(puuid, matchDto, dataDragonService));
         });
 
         return matchInfoDtos;
@@ -55,7 +59,7 @@ public class RiotApiService {
         ArrayList<PlayerDisplayInfoDto> playerDisplayInfoDtos = new ArrayList<>();
         MatchDto match = riotApiClient.callForMatchDto(serverId, matchId);
         for(ParticipantDto p : match.info().participants()){
-            playerDisplayInfoDtos.add(PlayerDisplayInfoDto.from(p));
+            playerDisplayInfoDtos.add(PlayerDisplayInfoDto.from(p, this.dataDragonService));
         }
         return new MatchDetailsDto(playerDisplayInfoDtos);
     }
