@@ -1,4 +1,4 @@
-package com.rra.project.riotrestapi.service;
+package com.rra.project.riotrestapi.service.riotapi;
 
 public enum Region {
     AMERICAS("https://americas.api.riotgames.com"),

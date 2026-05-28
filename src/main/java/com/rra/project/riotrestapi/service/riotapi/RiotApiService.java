@@ -1,4 +1,4 @@
-package com.rra.project.riotrestapi.service;
+package com.rra.project.riotrestapi.service.riotapi;
 
 import com.rra.project.riotrestapi.dto.fetched.*;
 import com.rra.project.riotrestapi.dto.requested.*;
@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class SummonerService {
+public class RiotApiService {
 
     private final RiotApiClient riotApiClient;
 
-    SummonerService(RiotApiClient riotApiClient) {
+    RiotApiService(RiotApiClient riotApiClient) {
         this.riotApiClient = riotApiClient;
     }
 

@@ -1,4 +1,4 @@
-package com.rra.project.riotrestapi.service;
+package com.rra.project.riotrestapi.service.riotapi;
 
 
 public enum ServerID {

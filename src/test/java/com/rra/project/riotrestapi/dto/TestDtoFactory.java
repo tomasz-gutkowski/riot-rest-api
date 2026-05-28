@@ -6,7 +6,7 @@ import com.rra.project.riotrestapi.dto.requested.LeagueInfoDto;
 import com.rra.project.riotrestapi.dto.requested.MatchInfoDto;
 import com.rra.project.riotrestapi.dto.requested.ProfileResponseDto;
 import com.rra.project.riotrestapi.dto.requested.SummonerInfoDto;
-import com.rra.project.riotrestapi.service.ServerID;
+import com.rra.project.riotrestapi.service.riotapi.ServerID;
 
 import java.util.ArrayList;
 import java.util.List;

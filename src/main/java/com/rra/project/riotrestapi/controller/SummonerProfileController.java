@@ -6,9 +6,8 @@ package com.rra.project.riotrestapi.controller;
 import com.rra.project.riotrestapi.dto.requested.MatchDetailsDto;
 import com.rra.project.riotrestapi.dto.requested.MatchInfoDto;
 import com.rra.project.riotrestapi.dto.requested.ProfileResponseDto;
-import com.rra.project.riotrestapi.service.ServerID;
-import com.rra.project.riotrestapi.service.SummonerService;
-import org.springframework.http.ResponseEntity;
+import com.rra.project.riotrestapi.service.riotapi.ServerID;
+import com.rra.project.riotrestapi.service.riotapi.RiotApiService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,19 +15,19 @@ import java.util.List;
 @RestController
 public class SummonerProfileController {
 
-    private final SummonerService summonerService;
+    private final RiotApiService riotApiService;
 
-    SummonerProfileController(SummonerService summonerService) {
-        this.summonerService = summonerService;
+    SummonerProfileController(RiotApiService riotApiService) {
+        this.riotApiService = riotApiService;
     }
 
     //request for basic profile data
-    @GetMapping("/summoner/{serverId}/{gameName}-{tagLine}")
+    @GetMapping("/api/summoner/{serverId}/{gameName}-{tagLine}")
     public ProfileResponseDto displaySummonerProfile(@PathVariable ServerID serverId,
                                                                      @PathVariable String gameName,
                                                                      @PathVariable String tagLine) {
 
-        return summonerService.getProfileResponseDto(serverId, gameName, tagLine);
+        return riotApiService.getProfileResponseDto(serverId, gameName, tagLine);
     }
 
     //request for list of match data
@@ -38,14 +37,14 @@ public class SummonerProfileController {
                                                              @PathVariable String tagLine,
                                                              @RequestParam(defaultValue = "0") int start,
                                                              @RequestParam(defaultValue = "20") int count){
-        return summonerService.getMatchInfoDtos(serverId, gameName, tagLine, start, count);
+        return riotApiService.getMatchInfoDtos(serverId, gameName, tagLine, start, count);
     }
 
     //request for specific match data
     @GetMapping("/api/match/{serverId}/{matchId}")
     public MatchDetailsDto displayMatchDetails(@PathVariable ServerID serverId,
                                                 @PathVariable String matchId) {
-        return summonerService.getMatchDetailsDto(serverId,matchId);
+        return riotApiService.getMatchDetailsDto(serverId,matchId);
     }
 
 }

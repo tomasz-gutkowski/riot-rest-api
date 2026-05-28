@@ -1,10 +1,8 @@
 package com.rra.project.riotrestapi.controller;
 
 import com.rra.project.riotrestapi.dto.TestDtoFactory;
-import com.rra.project.riotrestapi.exceptions.code4xx.ClientException;
 import com.rra.project.riotrestapi.exceptions.code4xx.ResourceNotFoundException;
-import com.rra.project.riotrestapi.service.ServerID;
-import com.rra.project.riotrestapi.service.SummonerService;
+import com.rra.project.riotrestapi.service.riotapi.RiotApiService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -27,24 +25,24 @@ class SummonerProfileControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockitoBean
-    SummonerService summonerService;
+    RiotApiService riotApiService;
 
 
     @Test
     void shouldReturn404WhenSummonerNotFound() throws Exception {
-        when(summonerService.getProfileResponseDto(any(), any(), any()))
+        when(riotApiService.getProfileResponseDto(any(), any(), any()))
                 .thenThrow(new ResourceNotFoundException("Cannot find summoner"));
 
-        mockMvc.perform(get("/summoner/{serverId}/{gameName}-{tagLine}", TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine))
+        mockMvc.perform(get("/api/summoner/{serverId}/{gameName}-{tagLine}", TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void shouldReturnSummonerProfileDataForSingleQueue() throws Exception {
-        when(summonerService.getProfileResponseDto(eq(TestDtoFactory.serverId), eq(TestDtoFactory.gameName), eq(TestDtoFactory.tagLine)))
+        when(riotApiService.getProfileResponseDto(eq(TestDtoFactory.serverId), eq(TestDtoFactory.gameName), eq(TestDtoFactory.tagLine)))
                 .thenReturn(TestDtoFactory.singleQueueRankedProfile());
 
-        mockMvc.perform(get("/summoner/{serverId}/{gameName}-{tagLine}", TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine))
+        mockMvc.perform(get("/api/summoner/{serverId}/{gameName}-{tagLine}", TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.summoner.gameName").value(TestDtoFactory.gameName))
                 .andExpect(jsonPath("$.summoner.tagLine").value(TestDtoFactory.tagLine))
@@ -54,10 +52,10 @@ class SummonerProfileControllerTest {
 
     @Test
     void shouldReturnSummonerProfileDataForMultipleQueues() throws Exception {
-        when(summonerService.getProfileResponseDto(eq(TestDtoFactory.serverId), eq(TestDtoFactory.gameName), eq(TestDtoFactory.tagLine)))
+        when(riotApiService.getProfileResponseDto(eq(TestDtoFactory.serverId), eq(TestDtoFactory.gameName), eq(TestDtoFactory.tagLine)))
                 .thenReturn(TestDtoFactory.multipleQueueRankedProfile());
 
-        mockMvc.perform(get("/summoner/{serverId}/{gameName}-{tagLine}",  TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine))
+        mockMvc.perform(get("/api/summoner/{serverId}/{gameName}-{tagLine}",  TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.summoner.gameName").value(TestDtoFactory.gameName))
                 .andExpect(jsonPath("$.summoner.tagLine").value(TestDtoFactory.tagLine))
@@ -69,10 +67,10 @@ class SummonerProfileControllerTest {
 
     @Test
     void shouldReturnSummonerProfileDataForUnranked() throws Exception {
-        when(summonerService.getProfileResponseDto(eq(TestDtoFactory.serverId), eq(TestDtoFactory.gameName), eq(TestDtoFactory.tagLine)))
+        when(riotApiService.getProfileResponseDto(eq(TestDtoFactory.serverId), eq(TestDtoFactory.gameName), eq(TestDtoFactory.tagLine)))
                 .thenReturn(TestDtoFactory.unrankedQueueRankedProfile());
 
-        mockMvc.perform(get("/summoner/{serverId}/{gameName}-{tagLine}",  TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine))
+        mockMvc.perform(get("/api/summoner/{serverId}/{gameName}-{tagLine}",  TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.summoner.gameName").value(TestDtoFactory.gameName))
                 .andExpect(jsonPath("$.summoner.tagLine").value(TestDtoFactory.tagLine))
@@ -83,7 +81,7 @@ class SummonerProfileControllerTest {
     void shouldReturnSummonersMatchListWithDefaultParams() throws Exception {
         int defaultStart = 0;
         int defaultCount = 20;
-        when(summonerService.getMatchInfoDtos(eq(TestDtoFactory.serverId), eq(TestDtoFactory.gameName), eq(TestDtoFactory.tagLine), eq(defaultStart), eq(defaultCount)))
+        when(riotApiService.getMatchInfoDtos(eq(TestDtoFactory.serverId), eq(TestDtoFactory.gameName), eq(TestDtoFactory.tagLine), eq(defaultStart), eq(defaultCount)))
                 .thenReturn(TestDtoFactory.matchInfoListStartingFromOfSize(defaultStart, defaultCount));
 
         mockMvc.perform(get("/api/matches/{serverId}/{gameName}-{tagLine}",  TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine)
@@ -100,7 +98,7 @@ class SummonerProfileControllerTest {
     void shouldReturnSummonersMatchListWithCustomParams() throws Exception {
         int defaultStart = 15;
         int defaultCount = 30;
-        when(summonerService.getMatchInfoDtos(eq(TestDtoFactory.serverId), eq(TestDtoFactory.gameName), eq(TestDtoFactory.tagLine), eq(defaultStart), eq(defaultCount)))
+        when(riotApiService.getMatchInfoDtos(eq(TestDtoFactory.serverId), eq(TestDtoFactory.gameName), eq(TestDtoFactory.tagLine), eq(defaultStart), eq(defaultCount)))
                 .thenReturn(TestDtoFactory.matchInfoListStartingFromOfSize(defaultStart, defaultCount));
 
         mockMvc.perform(get("/api/matches/{serverId}/{gameName}-{tagLine}",  TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine)

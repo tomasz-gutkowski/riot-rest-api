@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Objects;
 
 public record PlayerDisplayInfoDto(
-        String riotIdGameName,
-        String riotIdTagline,
+        String gameName,
+        String tagline,
         int championId,
         int level,
         int keystoneId,
@@ -23,6 +23,7 @@ public record PlayerDisplayInfoDto(
         int creepScore,
         int totalDamageDealtToChampions,
         boolean win,
+        int teamId,
         List<Integer> itemIds
 )
 {
@@ -52,6 +53,7 @@ public record PlayerDisplayInfoDto(
                 player.getCreepScore(),
                 player.totalDamageDealtToChampions(),
                 player.win(),
+                player.teamId(),
                 List.of(player.item0(), player.item1(), player.item2(), player.item3(), player.item4(), player.item5(), player.item6())
         );
     }

@@ -1,4 +1,4 @@
-package com.rra.project.riotrestapi.service;
+package com.rra.project.riotrestapi.service.riotapi;
 
 import com.rra.project.riotrestapi.dto.fetched.AccountDto;
 import com.rra.project.riotrestapi.dto.fetched.LeagueEntryDto;
@@ -12,7 +12,11 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 
 @Component
 public class RiotApiClient {
@@ -20,18 +24,23 @@ public class RiotApiClient {
     @Value("${riot.api.key}")
     private String apiKey;
 
+    private final Map<ServerID, RestClient> regionClients = new ConcurrentHashMap<ServerID, RestClient>();
+    private final Map<ServerID, RestClient> serverClients = new ConcurrentHashMap<ServerID, RestClient>();
+
     public RestClient getRegionClient(ServerID serverId) {
-        return RestClient.builder()
-                .baseUrl(serverId.getRegion().getBaseUrl())
-                .defaultHeader("X-Riot-Token", apiKey)
-                .build();
+        return regionClients.computeIfAbsent(serverId,
+                (sid) -> RestClient.builder()
+                        .baseUrl(sid.getRegion().getBaseUrl())
+                        .defaultHeader("X-Riot-Token", apiKey)
+                        .build());
     }
 
     public RestClient getServerClient(ServerID serverId) {
-        return RestClient.builder()
-                .baseUrl(serverId.getBaseUrl())
-                .defaultHeader("X-Riot-Token", apiKey)
-                .build();
+        return serverClients.computeIfAbsent(serverId,
+                (sid) -> RestClient.builder()
+                        .baseUrl(sid.getBaseUrl())
+                        .defaultHeader("X-Riot-Token", apiKey)
+                        .build());
     }
 
     public AccountDto callForAccountDto(ServerID serverId, String gameName, String tagLine) {
