@@ -6,8 +6,6 @@ package com.rra.project.riotrestapi.controller;
 import com.rra.project.riotrestapi.dto.requested.MatchDetailsDto;
 import com.rra.project.riotrestapi.dto.requested.MatchInfoDto;
 import com.rra.project.riotrestapi.dto.requested.ProfileResponseDto;
-import com.rra.project.riotrestapi.service.datadragon.DataDragonClient;
-import com.rra.project.riotrestapi.service.datadragon.DataDragonService;
 import com.rra.project.riotrestapi.service.riotapi.ServerID;
 import com.rra.project.riotrestapi.service.riotapi.RiotApiService;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api")
 public class SummonerProfileController {
 
     private final RiotApiService riotApiService;
@@ -24,7 +23,7 @@ public class SummonerProfileController {
     }
 
     //request for basic profile data
-    @GetMapping("/api/summoner/{serverId}/{gameName}-{tagLine}")
+    @GetMapping("/profile/{serverId}/{gameName}-{tagLine}")
     public ProfileResponseDto displaySummonerProfile(@PathVariable ServerID serverId,
                                                                      @PathVariable String gameName,
                                                                      @PathVariable String tagLine) {
@@ -33,7 +32,7 @@ public class SummonerProfileController {
     }
 
     //request for list of match data
-    @GetMapping("/api/matches/{serverId}/{gameName}-{tagLine}")
+    @GetMapping("/matches/{serverId}/{gameName}-{tagLine}")
     public List<MatchInfoDto> displayMatchList(@PathVariable ServerID serverId,
                                                              @PathVariable String gameName,
                                                              @PathVariable String tagLine,
@@ -43,7 +42,7 @@ public class SummonerProfileController {
     }
 
     //request for specific match data
-    @GetMapping("/api/match/{serverId}/{matchId}")
+    @GetMapping("/match/{serverId}/{matchId}")
     public MatchDetailsDto displayMatchDetails(@PathVariable ServerID serverId,
                                                 @PathVariable String matchId) {
         return riotApiService.getMatchDetailsDto(serverId,matchId);

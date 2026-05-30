@@ -5,6 +5,7 @@ import com.rra.project.riotrestapi.dto.fetched.InfoDto;
 import com.rra.project.riotrestapi.dto.fetched.MatchDto;
 import com.rra.project.riotrestapi.dto.fetched.MetadataDto;
 import com.rra.project.riotrestapi.dto.fetched.ParticipantDto;
+import com.rra.project.riotrestapi.dto.requested.common.IdNamePair;
 import com.rra.project.riotrestapi.service.datadragon.DataDragonService;
 
 
@@ -13,8 +14,8 @@ import java.util.List;
 
 public record MatchInfoDto(
         String matchId,
-        String endOfGameResult,
-        String gameMode,
+        String gameResult,
+        MatchIdInfo gameData,
         PlayerDisplayInfoDto player,
         List<ParticipantDisplayInfoDto> participants,
         long gameCreation,
@@ -36,16 +37,31 @@ public record MatchInfoDto(
         }
         assert owner != null;
 
-        var ownerInfo = PlayerDisplayInfoDto.from(owner, dataDragonService);
+        var ownerInfo = PlayerDisplayInfoDto.from(owner, match.info(), dataDragonService);
+
+        String gameRes;
+        if(owner.gameEndedInEarlySurrender() && !owner.gameEndedInSurrender()){
+            gameRes = "REMAKE";
+        } else{
+            gameRes = owner.win() ? "WIN" : "LOSE";
+        }
 
         return new MatchInfoDto(
                 metadata.matchId(),
-                info.endOfGameResult(),
-                info.gameMode(),
+                gameRes,
+                new MatchIdInfo(info.queueId(), dataDragonService.getGameModeName(info.queueId())),
                 ownerInfo,
                 participantsInfo,
                 info.gameCreation(),
                 info.gameDuration()
         );
     }
+
+    public record MatchIdInfo(
+            int id,
+            DataDragonService.MapModeNamePair info
+    ){
+
+    }
+
 }

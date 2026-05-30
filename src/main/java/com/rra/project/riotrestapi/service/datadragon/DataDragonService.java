@@ -19,6 +19,7 @@ public class DataDragonService {
     private volatile HashMap<Integer, String> runeNames = new HashMap<>();
     private volatile HashMap<Integer, String> summonerSpellNames = new HashMap<>();
     private volatile HashMap<Integer, String> augmentNames = new HashMap<>();
+    private volatile HashMap<Integer, MapModeNamePair> gameModes = new HashMap<>();
 
     public DataDragonService(DataDragonClient dataDragonClient) {
         this.dataDragonClient = dataDragonClient;
@@ -46,7 +47,11 @@ public class DataDragonService {
 
         JsonNode summonerSpells = dataDragonClient.fetchSummonerSpells();
         updateSummonerSpells(summonerSpells);
+
+        JsonNode gameModes = dataDragonClient.fetchGameModes();
+        updateGameModes(gameModes);
     }
+
 
     private void updateCDragonMappings(){
         JsonNode augments = dataDragonClient.fetchAugments();
@@ -100,6 +105,21 @@ public class DataDragonService {
         this.summonerSpellNames = result;
     }
 
+    private void updateGameModes(JsonNode json){
+        HashMap<Integer, MapModeNamePair> result = new HashMap<>();
+
+        for(var gameMode : json){
+            int k = gameMode.path("queueId").intValue();
+            String map =  gameMode.path("map").asString();
+            String mode = gameMode.path("description").asString();
+            if(mode.endsWith(" games")) mode = mode.substring(0, mode.length()-" games".length());
+            var v = new MapModeNamePair(map, mode);
+            result.put(k, v);
+        }
+
+        this.gameModes = result;
+    }
+
     private void updateAugments(JsonNode json){
         HashMap<Integer, String> result = new HashMap<>();
 
@@ -107,7 +127,6 @@ public class DataDragonService {
         for(var augment : augments){
             int k = augment.path("id").intValue();
             String v = augment.path("name").asString();
-            System.out.println("augment id: "+k+" name: "+v);
             result.put(k, v);
         }
         this.augmentNames = result;
@@ -125,5 +144,16 @@ public class DataDragonService {
         return this.summonerSpellNames.get(id);
     }
 
+    public MapModeNamePair getGameModeName(int id){
+        return this.gameModes.get(id);
+    }
+
     public String getAugmentName(int id){ return this.augmentNames.get(id); }
+
+
+
+    public record MapModeNamePair(
+             String map,
+             String modeName
+    ){}
 }

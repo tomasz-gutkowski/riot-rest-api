@@ -18,8 +18,11 @@ import java.util.ArrayList;
 public class DataDragonClient {
 
     private static final String VERSION_URI = "/api/versions.json";
+
     private final RestClient dataDragonClient;
+    private final RestClient staticDeveloperClient;
     private final RestClient communityDragonClient;
+
     private volatile String currentVersion;
     private String augmentsEtag;
 
@@ -27,6 +30,10 @@ public class DataDragonClient {
         this.dataDragonClient = RestClient.builder().
                 baseUrl("https://ddragon.leagueoflegends.com").
                 build();
+
+        this.staticDeveloperClient = RestClient.builder()
+                .baseUrl("https://static.developer.riotgames.com")
+                .build();
 
         this.communityDragonClient = RestClient.builder().
                 baseUrl("https://raw.communitydragon.org").
@@ -78,6 +85,11 @@ public class DataDragonClient {
     public JsonNode fetchSummonerSpells(){
         String uri = "/cdn/"+currentVersion+"/data/en_US/summoner.json";
         return request(uri, dataDragonClient).body(JsonNode.class);
+    }
+
+    public JsonNode fetchGameModes(){
+        String uri = "/docs/lol/queues.json";
+        return request(uri, staticDeveloperClient).body(JsonNode.class);
     }
 
     public JsonNode fetchAugments(){

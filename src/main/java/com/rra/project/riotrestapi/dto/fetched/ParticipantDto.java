@@ -89,6 +89,8 @@ public record ParticipantDto(
         Integer playerAugment2,
         Integer playerAugment3,
         Integer playerAugment4,
+        Integer playerAugment5,
+        Integer playerAugment6,
         Integer playerSubteamId,
         Integer pushPings,
         Integer profileIcon,

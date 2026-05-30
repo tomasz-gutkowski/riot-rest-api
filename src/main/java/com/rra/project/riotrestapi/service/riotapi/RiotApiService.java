@@ -60,7 +60,7 @@ public class RiotApiService {
         ArrayList<PlayerDisplayInfoDto> playerDisplayInfoDtos = new ArrayList<>();
         MatchDto match = riotApiClient.callForMatchDto(serverId, matchId);
         for(ParticipantDto p : match.info().participants()){
-            playerDisplayInfoDtos.add(PlayerDisplayInfoDto.from(p, this.dataDragonService));
+            playerDisplayInfoDtos.add(PlayerDisplayInfoDto.from(p, match.info(), this.dataDragonService));
         }
         return new MatchDetailsDto(playerDisplayInfoDtos);
     }

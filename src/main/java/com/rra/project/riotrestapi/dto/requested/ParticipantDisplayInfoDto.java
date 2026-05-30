@@ -9,9 +9,19 @@ public record ParticipantDisplayInfoDto(
         String tagLine,
         int championId,
         String position,
-        int teamId //100 blue 200 red
+        int teamId, //100 blue 200 red
+        int placement
 ) {
     public static ParticipantDisplayInfoDto from(ParticipantDto participant) {
+        int tId;
+        int place;
+        if(participant.playerSubteamId() == 0) {
+            tId = participant.teamId();
+            place = 0;
+        } else{
+            tId = participant.playerSubteamId();
+            place = participant.subteamPlacement();
+        }
 
         return new ParticipantDisplayInfoDto(
                 participant.puuid(),
@@ -19,7 +29,8 @@ public record ParticipantDisplayInfoDto(
                 participant.riotIdTagline(),
                 participant.championId(),
                 participant.teamPosition(),
-                participant.teamId()
+                tId,
+                place
         );
     }
 }
