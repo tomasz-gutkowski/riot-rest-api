@@ -2,12 +2,9 @@ package com.rra.project.riotrestapi.dto.requested;
 
 import com.rra.project.riotrestapi.dto.fetched.ParticipantDto;
 import com.rra.project.riotrestapi.dto.fetched.PerkStyleDto;
-import com.rra.project.riotrestapi.dto.fetched.PerksDto;
 import com.rra.project.riotrestapi.service.datadragon.DataDragonService;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public record PlayerDisplayInfoDto(
         String gameName,

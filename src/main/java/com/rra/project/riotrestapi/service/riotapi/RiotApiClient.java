@@ -7,12 +7,12 @@ import com.rra.project.riotrestapi.dto.fetched.SummonerDto;
 import com.rra.project.riotrestapi.exceptions.code4xx.*;
 import com.rra.project.riotrestapi.exceptions.code5xx.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -79,6 +79,7 @@ public class RiotApiClient {
                 .body(new ParameterizedTypeReference<List<String>>() {});
     }
 
+    @Cacheable("matches")
     public MatchDto callForMatchDto(ServerID serverId, String matchId) {
         // "lol/match/v5/matches/{matchId}", matchId
         String uri = String.format("/lol/match/v5/matches/%s", matchId);
