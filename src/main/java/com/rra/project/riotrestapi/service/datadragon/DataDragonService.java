@@ -2,7 +2,6 @@ package com.rra.project.riotrestapi.service.datadragon;
 
 
 import jakarta.annotation.PostConstruct;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
@@ -12,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 @Service
-@EnableScheduling
 public class DataDragonService {
 
     private final DataDragonClient dataDragonClient;
@@ -20,6 +18,7 @@ public class DataDragonService {
     private volatile HashMap<Integer, String> itemNames = new HashMap<>();
     private volatile HashMap<Integer, String> runeNames = new HashMap<>();
     private volatile HashMap<Integer, String> summonerSpellNames = new HashMap<>();
+    private volatile HashMap<Integer, String> augmentNames = new HashMap<>();
 
     public DataDragonService(DataDragonClient dataDragonClient) {
         this.dataDragonClient = dataDragonClient;
@@ -28,14 +27,17 @@ public class DataDragonService {
     @PostConstruct // after dependency injection
     @Scheduled(cron = "0 0 6 * * *") // every day at 6:00
     public void refreshDDragonVersion(){
-        boolean isNewVersion = dataDragonClient.checkAndUpdateVersion();
-        if(isNewVersion){
-            updateMappings();
-            System.out.println("updating mappings...");
-        };
+        boolean isNewDDragonVersion = dataDragonClient.checkAndUpdateVersion();
+        boolean isNewCDragonVersion = dataDragonClient.isNewCommunityDragonVersion();
+        if(isNewDDragonVersion){
+            updateDDragonMappings();
+        }
+        if(isNewCDragonVersion){
+            updateCDragonMappings();
+        }
     }
 
-    private void updateMappings(){
+    private void updateDDragonMappings(){
         JsonNode items = dataDragonClient.fetchItems();
         updateItems(items);
 
@@ -44,6 +46,11 @@ public class DataDragonService {
 
         JsonNode summonerSpells = dataDragonClient.fetchSummonerSpells();
         updateSummonerSpells(summonerSpells);
+    }
+
+    private void updateCDragonMappings(){
+        JsonNode augments = dataDragonClient.fetchAugments();
+        updateAugments(augments);
     }
 
     private void updateItems(JsonNode json){
@@ -55,7 +62,6 @@ public class DataDragonService {
             int k = Integer.parseInt(entry.getKey());
             String v = entry.getValue().path("name").asString();
             result.put(k, v);
-            System.out.println("items key: " + k + " value: " + v);
         }
 
         this.itemNames = result;
@@ -90,9 +96,21 @@ public class DataDragonService {
             int k = Integer.parseInt(entry.getValue().path("key").asString());
             String v = entry.getValue().path("name").asString();
             result.put(k, v);
-            System.out.println("summoner spell key: " + k + " value: " + v);
         }
         this.summonerSpellNames = result;
+    }
+
+    private void updateAugments(JsonNode json){
+        HashMap<Integer, String> result = new HashMap<>();
+
+        JsonNode augments = json.path("augments");
+        for(var augment : augments){
+            int k = augment.path("id").intValue();
+            String v = augment.path("name").asString();
+            System.out.println("augment id: "+k+" name: "+v);
+            result.put(k, v);
+        }
+        this.augmentNames = result;
     }
 
     public String getItemName(int id){
@@ -106,4 +124,6 @@ public class DataDragonService {
     public String getSummonerSpellName(int id){
         return this.summonerSpellNames.get(id);
     }
+
+    public String getAugmentName(int id){ return this.augmentNames.get(id); }
 }

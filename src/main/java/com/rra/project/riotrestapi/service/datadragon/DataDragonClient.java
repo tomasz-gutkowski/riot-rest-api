@@ -7,6 +7,7 @@ import com.rra.project.riotrestapi.exceptions.code5xx.InternalServerErrorExcepti
 import com.rra.project.riotrestapi.exceptions.code5xx.ServiceUnavailableException;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.JsonNode;
@@ -17,12 +18,18 @@ import java.util.ArrayList;
 public class DataDragonClient {
 
     private static final String VERSION_URI = "/api/versions.json";
-    private final RestClient client;
+    private final RestClient dataDragonClient;
+    private final RestClient communityDragonClient;
     private volatile String currentVersion;
+    private String augmentsEtag;
 
     public DataDragonClient() {
-        this.client = RestClient.builder().
+        this.dataDragonClient = RestClient.builder().
                 baseUrl("https://ddragon.leagueoflegends.com").
+                build();
+
+        this.communityDragonClient = RestClient.builder().
+                baseUrl("https://raw.communitydragon.org").
                 build();
     }
 
@@ -31,7 +38,7 @@ public class DataDragonClient {
     }
 
     public boolean checkAndUpdateVersion(){
-        ArrayList<String> versions = callDataDragon(VERSION_URI).body(new ParameterizedTypeReference<ArrayList<String>>(){});
+        ArrayList<String> versions = request(VERSION_URI, dataDragonClient).body(new ParameterizedTypeReference<ArrayList<String>>(){});
         if(versions != null && !versions.isEmpty()){
             String newVersion = versions.getFirst();
             if(currentVersion != null && currentVersion.equals(newVersion)){
@@ -45,23 +52,41 @@ public class DataDragonClient {
         return false;
     }
 
+    public boolean isNewCommunityDragonVersion(){
+        RestClient.RequestHeadersSpec<?> request = communityDragonClient.get()
+                .uri("/latest/cdragon/arena/en_us.json");
+
+        if (augmentsEtag != null) {
+            request.header("If-None-Match", augmentsEtag);
+        }
+
+        ResponseEntity<JsonNode> response = request.retrieve().toEntity(JsonNode.class);
+
+        return response.getStatusCode().value() != 304;
+    }
+
     public JsonNode fetchItems(){
         String uri = "/cdn/"+currentVersion+"/data/en_US/item.json";
-        return callDataDragon(uri).body(JsonNode.class);
+        return request(uri, dataDragonClient).body(JsonNode.class);
     }
 
     public JsonNode fetchRunes(){
         String uri = "/cdn/"+currentVersion+"/data/en_US/runesReforged.json";
-        return callDataDragon(uri).body(JsonNode.class);
+        return request(uri, dataDragonClient).body(JsonNode.class);
     }
 
     public JsonNode fetchSummonerSpells(){
         String uri = "/cdn/"+currentVersion+"/data/en_US/summoner.json";
-        return callDataDragon(uri).body(JsonNode.class);
+        return request(uri, dataDragonClient).body(JsonNode.class);
     }
 
-    public RestClient.ResponseSpec callDataDragon(String uri){
-        return this.client.get()
+    public JsonNode fetchAugments(){
+        String uri = "/latest/cdragon/arena/en_us.json";
+        return request(uri, communityDragonClient).body(JsonNode.class);
+    }
+
+    public RestClient.ResponseSpec request(String uri, RestClient client){
+        return client.get()
                 .uri(uri)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, (request, response) ->{
@@ -86,5 +111,9 @@ public class DataDragonClient {
                     }
                 });
     }
+
+
+
+
 
 }
