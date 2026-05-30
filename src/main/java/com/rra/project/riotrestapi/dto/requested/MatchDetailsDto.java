@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 
 public record MatchDetailsDto(
-        ArrayList<PlayerDisplayInfoDto> playerList
+        ArrayList<PlayerDisplayInfoDto> players
 ) {
 
 }

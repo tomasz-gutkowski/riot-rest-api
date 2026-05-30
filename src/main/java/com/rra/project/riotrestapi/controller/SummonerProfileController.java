@@ -14,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:5173")
 public class SummonerProfileController {
 
     private final RiotApiService riotApiService;
@@ -23,7 +24,7 @@ public class SummonerProfileController {
     }
 
     //request for basic profile data
-    @GetMapping("/profile/{serverId}/{gameName}-{tagLine}")
+    @GetMapping("/profile/{serverId}/{gameName}/{tagLine}")
     public ProfileResponseDto displaySummonerProfile(@PathVariable ServerID serverId,
                                                                      @PathVariable String gameName,
                                                                      @PathVariable String tagLine) {
@@ -32,13 +33,12 @@ public class SummonerProfileController {
     }
 
     //request for list of match data
-    @GetMapping("/matches/{serverId}/{gameName}-{tagLine}")
+    @GetMapping("/matches/{serverId}/{puuid}")
     public List<MatchInfoDto> displayMatchList(@PathVariable ServerID serverId,
-                                                             @PathVariable String gameName,
-                                                             @PathVariable String tagLine,
+                                                             @PathVariable String puuid,
                                                              @RequestParam(defaultValue = "0") int start,
                                                              @RequestParam(defaultValue = "20") int count){
-        return riotApiService.getMatchInfoDtos(serverId, gameName, tagLine, start, count);
+        return riotApiService.getMatchInfoDtos(serverId, puuid, start, count);
     }
 
     //request for specific match data

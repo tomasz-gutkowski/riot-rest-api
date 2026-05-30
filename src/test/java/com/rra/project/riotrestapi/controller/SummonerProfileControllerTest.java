@@ -6,13 +6,13 @@ import com.rra.project.riotrestapi.service.riotapi.RiotApiService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.cache.CacheManager;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -26,6 +26,8 @@ class SummonerProfileControllerTest {
     private MockMvc mockMvc;
     @MockitoBean
     RiotApiService riotApiService;
+    @MockitoBean
+    CacheManager cacheManager;
 
 
     @Test
@@ -33,7 +35,7 @@ class SummonerProfileControllerTest {
         when(riotApiService.getProfileResponseDto(any(), any(), any()))
                 .thenThrow(new ResourceNotFoundException("Cannot find summoner"));
 
-        mockMvc.perform(get("/api/summoner/{serverId}/{gameName}-{tagLine}", TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine))
+        mockMvc.perform(get("/api/profile/{serverId}/{gameName}/{tagLine}", TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine))
                 .andExpect(status().isNotFound());
     }
 
@@ -42,10 +44,10 @@ class SummonerProfileControllerTest {
         when(riotApiService.getProfileResponseDto(eq(TestDtoFactory.serverId), eq(TestDtoFactory.gameName), eq(TestDtoFactory.tagLine)))
                 .thenReturn(TestDtoFactory.singleQueueRankedProfile());
 
-        mockMvc.perform(get("/api/summoner/{serverId}/{gameName}-{tagLine}", TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine))
+        mockMvc.perform(get("/api/profile/{serverId}/{gameName}/{tagLine}", TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.summoner.gameName").value(TestDtoFactory.gameName))
-                .andExpect(jsonPath("$.summoner.tagLine").value(TestDtoFactory.tagLine))
+                .andExpect(jsonPath("$.player.gameName").value(TestDtoFactory.gameName))
+                .andExpect(jsonPath("$.player.tagLine").value(TestDtoFactory.tagLine))
                 .andExpect(jsonPath("$.leagues[0]").exists())
                 .andExpect(jsonPath("$.leagues[0]").isNotEmpty());
     }
@@ -55,10 +57,10 @@ class SummonerProfileControllerTest {
         when(riotApiService.getProfileResponseDto(eq(TestDtoFactory.serverId), eq(TestDtoFactory.gameName), eq(TestDtoFactory.tagLine)))
                 .thenReturn(TestDtoFactory.multipleQueueRankedProfile());
 
-        mockMvc.perform(get("/api/summoner/{serverId}/{gameName}-{tagLine}",  TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine))
+        mockMvc.perform(get("/api/profile/{serverId}/{gameName}/{tagLine}",  TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.summoner.gameName").value(TestDtoFactory.gameName))
-                .andExpect(jsonPath("$.summoner.tagLine").value(TestDtoFactory.tagLine))
+                .andExpect(jsonPath("$.player.gameName").value(TestDtoFactory.gameName))
+                .andExpect(jsonPath("$.player.tagLine").value(TestDtoFactory.tagLine))
                 .andExpect(jsonPath("$.leagues[0]").exists())
                 .andExpect(jsonPath("$.leagues[0]").isNotEmpty())
                 .andExpect(jsonPath("$.leagues[1]").exists())
@@ -70,10 +72,10 @@ class SummonerProfileControllerTest {
         when(riotApiService.getProfileResponseDto(eq(TestDtoFactory.serverId), eq(TestDtoFactory.gameName), eq(TestDtoFactory.tagLine)))
                 .thenReturn(TestDtoFactory.unrankedQueueRankedProfile());
 
-        mockMvc.perform(get("/api/summoner/{serverId}/{gameName}-{tagLine}",  TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine))
+        mockMvc.perform(get("/api/profile/{serverId}/{gameName}/{tagLine}",  TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.summoner.gameName").value(TestDtoFactory.gameName))
-                .andExpect(jsonPath("$.summoner.tagLine").value(TestDtoFactory.tagLine))
+                .andExpect(jsonPath("$.player.gameName").value(TestDtoFactory.gameName))
+                .andExpect(jsonPath("$.player.tagLine").value(TestDtoFactory.tagLine))
                 .andExpect(jsonPath("$.leagues").isEmpty());
     }
 
@@ -81,10 +83,10 @@ class SummonerProfileControllerTest {
     void shouldReturnSummonersMatchListWithDefaultParams() throws Exception {
         int defaultStart = 0;
         int defaultCount = 20;
-        when(riotApiService.getMatchInfoDtos(eq(TestDtoFactory.serverId), eq(TestDtoFactory.gameName), eq(TestDtoFactory.tagLine), eq(defaultStart), eq(defaultCount)))
+        when(riotApiService.getMatchInfoDtos(eq(TestDtoFactory.serverId), eq(TestDtoFactory.puuid), eq(defaultStart), eq(defaultCount)))
                 .thenReturn(TestDtoFactory.matchInfoListStartingFromOfSize(defaultStart, defaultCount));
 
-        mockMvc.perform(get("/api/matches/{serverId}/{gameName}-{tagLine}",  TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine)
+        mockMvc.perform(get("/api/matches/{serverId}/{puuid}",  TestDtoFactory.serverId, TestDtoFactory.puuid)
                         .param("start", String.valueOf(defaultStart))
                         .param("count", String.valueOf(defaultCount)))
                 .andExpect(status().isOk())
@@ -98,10 +100,10 @@ class SummonerProfileControllerTest {
     void shouldReturnSummonersMatchListWithCustomParams() throws Exception {
         int defaultStart = 15;
         int defaultCount = 30;
-        when(riotApiService.getMatchInfoDtos(eq(TestDtoFactory.serverId), eq(TestDtoFactory.gameName), eq(TestDtoFactory.tagLine), eq(defaultStart), eq(defaultCount)))
+        when(riotApiService.getMatchInfoDtos(eq(TestDtoFactory.serverId), eq(TestDtoFactory.puuid), eq(defaultStart), eq(defaultCount)))
                 .thenReturn(TestDtoFactory.matchInfoListStartingFromOfSize(defaultStart, defaultCount));
 
-        mockMvc.perform(get("/api/matches/{serverId}/{gameName}-{tagLine}",  TestDtoFactory.serverId, TestDtoFactory.gameName, TestDtoFactory.tagLine)
+        mockMvc.perform(get("/api/matches/{serverId}/{puuid}",  TestDtoFactory.serverId, TestDtoFactory.puuid)
                         .param("start", String.valueOf(defaultStart))
                         .param("count", String.valueOf(defaultCount)))
                 .andExpect(status().isOk())

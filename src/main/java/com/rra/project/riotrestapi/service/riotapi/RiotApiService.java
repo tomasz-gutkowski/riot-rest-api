@@ -44,8 +44,7 @@ public class RiotApiService {
         return matchDtos;
     }
 
-    public List<MatchInfoDto> getMatchInfoDtos(ServerID serverId, String name, String tagLine, int start, int count) {
-        String puuid = riotApiClient.callForAccountDto(serverId, name, tagLine).puuid();
+    public List<MatchInfoDto> getMatchInfoDtos(ServerID serverId, String puuid, int start, int count) {
         List<MatchDto> matchDtos = getMatchDtos(serverId, puuid, start, count);
         List<MatchInfoDto> matchInfoDtos = new ArrayList<>();
 

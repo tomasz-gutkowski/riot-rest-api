@@ -5,7 +5,7 @@ import com.rra.project.riotrestapi.dto.fetched.MetadataDto;
 import com.rra.project.riotrestapi.dto.requested.LeagueInfoDto;
 import com.rra.project.riotrestapi.dto.requested.MatchInfoDto;
 import com.rra.project.riotrestapi.dto.requested.ProfileResponseDto;
-import com.rra.project.riotrestapi.dto.requested.SummonerInfoDto;
+import com.rra.project.riotrestapi.dto.requested.ProfileInfoDto;
 import com.rra.project.riotrestapi.service.riotapi.ServerID;
 
 import java.util.ArrayList;
@@ -15,6 +15,7 @@ public class TestDtoFactory {
 
     public static final String gameName = "Faker";
     public static final String tagLine = "KR1";
+    public static final String puuid = "abcdefghijklmnop12345678";
     public static final ServerID serverId = ServerID.KR;
 
     public static ProfileResponseDto singleQueueRankedProfile() {
@@ -29,8 +30,8 @@ public class TestDtoFactory {
         return new ProfileResponseDto(summonerInfo(), unrankedQueueLeagueInfo());
     }
 
-    public static SummonerInfoDto summonerInfo(){
-        return new SummonerInfoDto(gameName, tagLine, 0, 1000);
+    public static ProfileInfoDto summonerInfo(){
+        return new ProfileInfoDto(puuid ,gameName, tagLine, 0, 1000);
     }
 
     public static LeagueInfoDto[] singleQueueLeagueInfo(){

@@ -1,7 +1,7 @@
 package com.rra.project.riotrestapi.dto.fetched;
 
 public record LeagueEntryDto(
-        String leagueId,
+        //String leagueId deprecated,
         String puuid,
         String queueType,
         String tier,
