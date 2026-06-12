@@ -97,6 +97,11 @@ public class DataDragonClient {
         return request(uri, communityDragonClient).body(JsonNode.class);
     }
 
+    public JsonNode fetchChampions(){
+        String uri = "/cdn/"+currentVersion+"/data/en_US/champion.json";
+        return request(uri, dataDragonClient).body(JsonNode.class);
+    }
+
     public RestClient.ResponseSpec request(String uri, RestClient client){
         return client.get()
                 .uri(uri)

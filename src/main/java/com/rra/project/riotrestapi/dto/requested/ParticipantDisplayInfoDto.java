@@ -2,17 +2,18 @@ package com.rra.project.riotrestapi.dto.requested;
 
 import com.rra.project.riotrestapi.dto.fetched.AccountDto;
 import com.rra.project.riotrestapi.dto.fetched.ParticipantDto;
+import com.rra.project.riotrestapi.service.datadragon.DataDragonService;
 
 public record ParticipantDisplayInfoDto(
         String puuid,
         String gameName,
         String tagLine,
-        int championId,
+        PlayerDisplayInfoDto.ChampionData championData,
         String position,
         int teamId, //100 blue 200 red
         int placement
 ) {
-    public static ParticipantDisplayInfoDto from(ParticipantDto participant) {
+    public static ParticipantDisplayInfoDto from(ParticipantDto participant, DataDragonService dataDragonService) {
         int tId;
         int place;
         if(participant.playerSubteamId() == 0) {
@@ -27,10 +28,11 @@ public record ParticipantDisplayInfoDto(
                 participant.puuid(),
                 participant.riotIdGameName(),
                 participant.riotIdTagline(),
-                participant.championId(),
+                new PlayerDisplayInfoDto.ChampionData(participant.championId(), dataDragonService.getChampionName(participant.championId())),
                 participant.teamPosition(),
                 tId,
                 place
         );
     }
+
 }

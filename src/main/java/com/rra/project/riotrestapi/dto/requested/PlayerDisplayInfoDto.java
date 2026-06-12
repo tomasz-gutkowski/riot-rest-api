@@ -7,12 +7,11 @@ import com.rra.project.riotrestapi.dto.requested.common.IdNamePair;
 import com.rra.project.riotrestapi.service.datadragon.DataDragonService;
 
 import java.util.List;
-import java.util.Objects;
 
 public record PlayerDisplayInfoDto(
         String gameName,
         String tagline,
-        String championName,
+        ChampionData championData,
         int level,
         List<IdNameImage> summonerSpells,
         int kills,
@@ -72,7 +71,7 @@ public record PlayerDisplayInfoDto(
         return new PlayerDisplayInfoDto(
                 player.riotIdGameName(),
                 player.riotIdTagline(),
-                player.championName(),
+                new ChampionData(player.championId(), dataDragonService.getChampionName(player.championId())),
                 player.champLevel(),
                 List.of(
                         new IdNameImage(player.summoner1Id(), dataDragonService.getSummonerSpellName(player.summoner1Id())),
@@ -119,6 +118,11 @@ public record PlayerDisplayInfoDto(
     public record IdNameImage(
             int id,
             DataDragonService.NameImagePair nameImage
+    ){}
+
+    public record ChampionData(
+            int key,
+            DataDragonService.ChampIdNamePair idName
     ){}
 
     public sealed interface ModeData permits DefaultModeData, ArenaModeData{};

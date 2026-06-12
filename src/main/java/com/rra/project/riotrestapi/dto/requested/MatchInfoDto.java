@@ -29,7 +29,7 @@ public record MatchInfoDto(
 
         ParticipantDto owner = null;
         for(ParticipantDto participant : participants){
-            participantsInfo.add(ParticipantDisplayInfoDto.from(participant));
+            participantsInfo.add(ParticipantDisplayInfoDto.from(participant, dataDragonService));
 
             if(participant.puuid().equals(ownerPuuid)){
                 owner = participant;

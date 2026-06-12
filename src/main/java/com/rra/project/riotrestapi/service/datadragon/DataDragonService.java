@@ -20,6 +20,7 @@ public class DataDragonService {
     private volatile HashMap<Integer, NameImagePair> summonerSpellNames = new HashMap<>();
     private volatile HashMap<Integer, String> augmentNames = new HashMap<>();
     private volatile HashMap<Integer, MapModeNamePair> gameModes = new HashMap<>();
+    private volatile HashMap<Integer, ChampIdNamePair> championNames = new HashMap<>();
 
     public DataDragonService(DataDragonClient dataDragonClient) {
         this.dataDragonClient = dataDragonClient;
@@ -50,6 +51,9 @@ public class DataDragonService {
 
         JsonNode gameModes = dataDragonClient.fetchGameModes();
         updateGameModes(gameModes);
+
+        JsonNode champions = dataDragonClient.fetchChampions();
+        updateChampions(champions);
     }
 
 
@@ -135,6 +139,19 @@ public class DataDragonService {
         this.augmentNames = result;
     }
 
+    public void updateChampions(JsonNode json){
+        HashMap<Integer, ChampIdNamePair> result = new HashMap<>();
+
+        JsonNode data = json.path("data");
+        for(var champion : data){
+            int k = Integer.parseInt(champion.path("key").asString());
+            String v1 = champion.path("id").asString();
+            String v2 = champion.path("name").asString();
+            result.put(k, new ChampIdNamePair(v1, v2));
+        }
+        this.championNames = result;
+    }
+
     public String getItemName(int id){
         return this.itemNames.get(id);
     }
@@ -153,9 +170,12 @@ public class DataDragonService {
 
     public String getAugmentName(int id){ return this.augmentNames.get(id); }
 
+    public ChampIdNamePair getChampionName(int id){ return this.championNames.get(id); }
+
     public String getLatestVersion(){
         return dataDragonClient.getCurrentVersion();
     }
+
 
 
     public record MapModeNamePair(
@@ -166,5 +186,10 @@ public class DataDragonService {
     public record NameImagePair(
             String name,
             String image
+    ){}
+
+    public record ChampIdNamePair(
+            String id,
+            String name
     ){}
 }
