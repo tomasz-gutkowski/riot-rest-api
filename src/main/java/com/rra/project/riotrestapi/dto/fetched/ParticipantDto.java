@@ -46,6 +46,7 @@ public record ParticipantDto(
         Integer item4,
         Integer item5,
         Integer item6,
+        Integer roleBoundItem,
         Integer itemsPurchased,
         Integer killingSprees,
         Integer kills,

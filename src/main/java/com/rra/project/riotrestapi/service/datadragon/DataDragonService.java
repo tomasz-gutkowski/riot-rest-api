@@ -16,8 +16,8 @@ public class DataDragonService {
     private final DataDragonClient dataDragonClient;
 
     private volatile HashMap<Integer, String> itemNames = new HashMap<>();
-    private volatile HashMap<Integer, String> runeNames = new HashMap<>();
-    private volatile HashMap<Integer, String> summonerSpellNames = new HashMap<>();
+    private volatile HashMap<Integer, NameImagePair> runeNames = new HashMap<>();
+    private volatile HashMap<Integer, NameImagePair> summonerSpellNames = new HashMap<>();
     private volatile HashMap<Integer, String> augmentNames = new HashMap<>();
     private volatile HashMap<Integer, MapModeNamePair> gameModes = new HashMap<>();
 
@@ -73,19 +73,21 @@ public class DataDragonService {
     }
 
     private void updateRunes(JsonNode json){
-        HashMap<Integer, String> result = new HashMap<>();
+        HashMap<Integer, NameImagePair> result = new HashMap<>();
 
         for(var style : json){
             int k1 = style.path("id").intValue();
-            String v1 = style.path("name").asString();
-            result.put(k1, v1);
+            String v01 = style.path("name").asString();
+            String v02 = style.path("icon").asString();
+            result.put(k1, new NameImagePair(v01, v02));
             var slots = style.path("slots");
             for(var slot : slots){
                 var runes = slot.path("runes");
                 for(var rune : runes){
                     int k2 = rune.path("id").intValue();
-                    String v2 = rune.path("name").asString();
-                    result.put(k2, v2);
+                    String v11 = rune.path("name").asString();
+                    String v12 = rune.path("icon").asString();
+                    result.put(k2, new NameImagePair(v11, v12));
                 }
             }
         }
@@ -94,13 +96,14 @@ public class DataDragonService {
     }
 
     private void updateSummonerSpells(JsonNode json){
-        HashMap<Integer, String> result = new HashMap<>();
+        HashMap<Integer, NameImagePair> result = new HashMap<>();
 
         Set<Map.Entry<String, JsonNode>> data = json.path("data").properties();
         for(var entry : data){
             int k = Integer.parseInt(entry.getValue().path("key").asString());
-            String v = entry.getValue().path("name").asString();
-            result.put(k, v);
+            String v1 = entry.getValue().path("name").asString();
+            String v2 = entry.getValue().path("image").path("full").asString();
+            result.put(k, new NameImagePair(v1, v2));
         }
         this.summonerSpellNames = result;
     }
@@ -136,11 +139,11 @@ public class DataDragonService {
         return this.itemNames.get(id);
     }
 
-    public String getRuneName(int id){
+    public NameImagePair getRuneName(int id){
         return this.runeNames.get(id);
     }
 
-    public String getSummonerSpellName(int id){
+    public NameImagePair getSummonerSpellName(int id){
         return this.summonerSpellNames.get(id);
     }
 
@@ -150,10 +153,18 @@ public class DataDragonService {
 
     public String getAugmentName(int id){ return this.augmentNames.get(id); }
 
+    public String getLatestVersion(){
+        return dataDragonClient.getCurrentVersion();
+    }
 
 
     public record MapModeNamePair(
              String map,
              String modeName
+    ){}
+
+    public record NameImagePair(
+            String name,
+            String image
     ){}
 }

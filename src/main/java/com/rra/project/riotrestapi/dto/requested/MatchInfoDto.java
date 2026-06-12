@@ -18,7 +18,7 @@ public record MatchInfoDto(
         MatchIdInfo gameData,
         PlayerDisplayInfoDto player,
         List<ParticipantDisplayInfoDto> participants,
-        long gameCreation,
+        long gameEndTimestamp,
         long gameDuration
 ){
     public static MatchInfoDto from(String ownerPuuid, MatchDto match, DataDragonService dataDragonService){
@@ -43,7 +43,7 @@ public record MatchInfoDto(
         if(owner.gameEndedInEarlySurrender() && !owner.gameEndedInSurrender()){
             gameRes = "REMAKE";
         } else{
-            gameRes = owner.win() ? "WIN" : "LOSE";
+            gameRes = owner.win() ? "WIN" : "LOSS";
         }
 
         return new MatchInfoDto(
@@ -52,7 +52,7 @@ public record MatchInfoDto(
                 new MatchIdInfo(info.queueId(), dataDragonService.getGameModeName(info.queueId())),
                 ownerInfo,
                 participantsInfo,
-                info.gameCreation(),
+                info.gameEndTimestamp(),
                 info.gameDuration()
         );
     }

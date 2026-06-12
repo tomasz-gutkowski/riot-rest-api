@@ -14,7 +14,7 @@ public record PlayerDisplayInfoDto(
         String tagline,
         String championName,
         int level,
-        List<IdNamePair> summonerSpells,
+        List<IdNameImage> summonerSpells,
         int kills,
         int deaths,
         int assists,
@@ -54,9 +54,9 @@ public record PlayerDisplayInfoDto(
                 }
             }
 
-            IdNamePair keystone = new IdNamePair(keystoneId, dataDragonService.getRuneName(keystoneId));
-            IdNamePair primaryStyle = new IdNamePair(primaryStyleId, dataDragonService.getRuneName(primaryStyleId));
-            IdNamePair subStyle = new IdNamePair(subStyleId, dataDragonService.getRuneName(subStyleId));
+            IdNameImage keystone = new IdNameImage(keystoneId, dataDragonService.getRuneName(keystoneId));
+            IdNameImage primaryStyle = new IdNameImage(primaryStyleId, dataDragonService.getRuneName(primaryStyleId));
+            IdNameImage subStyle = new IdNameImage(subStyleId, dataDragonService.getRuneName(subStyleId));
 
             PerksInfo playerPerks = new PerksInfo(keystone, primaryStyle, subStyle);
 
@@ -75,8 +75,8 @@ public record PlayerDisplayInfoDto(
                 player.championName(),
                 player.champLevel(),
                 List.of(
-                        new IdNamePair(player.summoner1Id(), dataDragonService.getSummonerSpellName(player.summoner1Id())),
-                        new IdNamePair(player.summoner2Id(), dataDragonService.getSummonerSpellName(player.summoner2Id()))
+                        new IdNameImage(player.summoner1Id(), dataDragonService.getSummonerSpellName(player.summoner1Id())),
+                        new IdNameImage(player.summoner2Id(), dataDragonService.getSummonerSpellName(player.summoner2Id()))
                 ),
                 player.kills(),
                 player.deaths(),
@@ -89,7 +89,9 @@ public record PlayerDisplayInfoDto(
                         new IdNamePair(player.item3(), dataDragonService.getItemName(player.item3())),
                         new IdNamePair(player.item4(), dataDragonService.getItemName(player.item4())),
                         new IdNamePair(player.item5(), dataDragonService.getItemName(player.item5())),
-                        new IdNamePair(player.item6(), dataDragonService.getItemName(player.item6()))),
+                        new IdNamePair(player.item6(), dataDragonService.getItemName(player.item6())),
+                        new IdNamePair(player.roleBoundItem(), dataDragonService.getItemName(player.roleBoundItem()))
+                ),
                 modeData
         );
     }
@@ -109,9 +111,14 @@ public record PlayerDisplayInfoDto(
     ) implements ModeData {}
 
     public record PerksInfo(
-            IdNamePair keystone,
-            IdNamePair primaryStyle,
-            IdNamePair subStyle
+            IdNameImage keystone,
+            IdNameImage primaryStyle,
+            IdNameImage subStyle
+    ){}
+
+    public record IdNameImage(
+            int id,
+            DataDragonService.NameImagePair nameImage
     ){}
 
     public sealed interface ModeData permits DefaultModeData, ArenaModeData{};

@@ -48,4 +48,9 @@ public class SummonerProfileController {
         return riotApiService.getMatchDetailsDto(serverId,matchId);
     }
 
+    @GetMapping("/ddragon/latest")
+    public String displayLatestDdragon() {
+        return riotApiService.getDatadragonLatest();
+    }
+
 }

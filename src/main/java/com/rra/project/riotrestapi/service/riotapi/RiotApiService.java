@@ -63,4 +63,8 @@ public class RiotApiService {
         }
         return new MatchDetailsDto(playerDisplayInfoDtos);
     }
+
+    public String getDatadragonLatest(){
+        return dataDragonService.getLatestVersion();
+    }
 }
