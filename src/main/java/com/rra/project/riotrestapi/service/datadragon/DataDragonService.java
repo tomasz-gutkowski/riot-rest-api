@@ -1,6 +1,7 @@
 package com.rra.project.riotrestapi.service.datadragon;
 
 
+import com.rra.project.riotrestapi.service.datadragon.datatypes.AugmentData;
 import jakarta.annotation.PostConstruct;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ public class DataDragonService {
     private volatile HashMap<Integer, String> itemNames = new HashMap<>();
     private volatile HashMap<Integer, NameImagePair> runeNames = new HashMap<>();
     private volatile HashMap<Integer, NameImagePair> summonerSpellNames = new HashMap<>();
-    private volatile HashMap<Integer, String> augmentNames = new HashMap<>();
+    private volatile HashMap<Integer, AugmentData> augmentData = new HashMap<>();
     private volatile HashMap<Integer, MapModeNamePair> gameModes = new HashMap<>();
     private volatile HashMap<Integer, ChampIdNamePair> championNames = new HashMap<>();
 
@@ -123,20 +124,26 @@ public class DataDragonService {
             var v = new MapModeNamePair(map, mode);
             result.put(k, v);
         }
-
+        //Arena 3x8 and Custom are currently missing from static.dev json, leaving it hardcoded for now
+        result.computeIfAbsent(1750, (k) -> new MapModeNamePair("Rings of Wrath", "Arena 3v3"));
+        result.computeIfAbsent(3130, (k) -> new MapModeNamePair("", "Custom"));
         this.gameModes = result;
     }
 
+
+
     private void updateAugments(JsonNode json){
-        HashMap<Integer, String> result = new HashMap<>();
+        HashMap<Integer, AugmentData> result = new HashMap<>();
 
         JsonNode augments = json.path("augments");
         for(var augment : augments){
             int k = augment.path("id").intValue();
-            String v = augment.path("name").asString();
-            result.put(k, v);
+            String v1 = augment.path("name").asString();
+            String v2 = augment.path("iconLarge").asString();
+            String v3 = augment.path("iconSmall").asString();
+            result.put(k, new AugmentData(k, v1, v2, v3));
         }
-        this.augmentNames = result;
+        this.augmentData = result;
     }
 
     public void updateChampions(JsonNode json){
@@ -151,6 +158,8 @@ public class DataDragonService {
         }
         this.championNames = result;
     }
+
+
 
     public String getItemName(int id){
         return this.itemNames.get(id);
@@ -168,7 +177,7 @@ public class DataDragonService {
         return this.gameModes.get(id);
     }
 
-    public String getAugmentName(int id){ return this.augmentNames.get(id); }
+    public AugmentData getAugmentData(int id){ return this.augmentData.get(id) != null ? this.augmentData.get(id) : new AugmentData(0, "empty", "noIcon", "noIcon"); }
 
     public ChampIdNamePair getChampionName(int id){ return this.championNames.get(id); }
 

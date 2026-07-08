@@ -5,6 +5,7 @@ import com.rra.project.riotrestapi.dto.fetched.ParticipantDto;
 import com.rra.project.riotrestapi.dto.fetched.PerkStyleDto;
 import com.rra.project.riotrestapi.dto.requested.common.IdNamePair;
 import com.rra.project.riotrestapi.service.datadragon.DataDragonService;
+import com.rra.project.riotrestapi.service.datadragon.datatypes.AugmentData;
 
 import java.util.List;
 
@@ -30,12 +31,12 @@ public record PlayerDisplayInfoDto(
                     player.playerSubteamId(),
                     player.subteamPlacement(),
                     List.of(
-                            new IdNamePair(player.playerAugment1(), dataDragonService.getAugmentName(player.playerAugment1())),
-                            new IdNamePair(player.playerAugment2(), dataDragonService.getAugmentName(player.playerAugment2())),
-                            new IdNamePair(player.playerAugment3(), dataDragonService.getAugmentName(player.playerAugment3())),
-                            new IdNamePair(player.playerAugment4(), dataDragonService.getAugmentName(player.playerAugment4())),
-                            new IdNamePair(player.playerAugment5(), dataDragonService.getAugmentName(player.playerAugment5())),
-                            new IdNamePair(player.playerAugment6(), dataDragonService.getAugmentName(player.playerAugment6()))
+                            dataDragonService.getAugmentData(player.playerAugment1()),
+                            dataDragonService.getAugmentData(player.playerAugment2()),
+                            dataDragonService.getAugmentData(player.playerAugment3()),
+                            dataDragonService.getAugmentData(player.playerAugment4()),
+                            dataDragonService.getAugmentData(player.playerAugment5()),
+                            dataDragonService.getAugmentData(player.playerAugment6())
                     )
             );
         } else {
@@ -106,7 +107,7 @@ public record PlayerDisplayInfoDto(
     public record ArenaModeData(
             int teamId,
             int teamPlacement,
-            List<IdNamePair> augments
+            List<AugmentData> augments
     ) implements ModeData {}
 
     public record PerksInfo(
