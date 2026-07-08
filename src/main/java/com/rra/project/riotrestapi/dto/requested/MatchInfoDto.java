@@ -5,8 +5,8 @@ import com.rra.project.riotrestapi.dto.fetched.InfoDto;
 import com.rra.project.riotrestapi.dto.fetched.MatchDto;
 import com.rra.project.riotrestapi.dto.fetched.MetadataDto;
 import com.rra.project.riotrestapi.dto.fetched.ParticipantDto;
-import com.rra.project.riotrestapi.dto.requested.common.IdNamePair;
 import com.rra.project.riotrestapi.service.datadragon.DataDragonService;
+import com.rra.project.riotrestapi.service.datadragon.datatypes.GameModeData;
 
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import java.util.List;
 public record MatchInfoDto(
         String matchId,
         String gameResult,
-        MatchIdInfo gameData,
+        GameModeData gameData,
         PlayerDisplayInfoDto player,
         List<ParticipantDisplayInfoDto> participants,
         long gameEndTimestamp,
@@ -49,19 +49,12 @@ public record MatchInfoDto(
         return new MatchInfoDto(
                 metadata.matchId(),
                 gameRes,
-                new MatchIdInfo(info.queueId(), dataDragonService.getGameModeName(info.queueId())),
+                dataDragonService.getGameModeName(info.queueId()),
                 ownerInfo,
                 participantsInfo,
                 info.gameEndTimestamp(),
                 info.gameDuration()
         );
-    }
-
-    public record MatchIdInfo(
-            int id,
-            DataDragonService.MapModeNamePair info
-    ){
-
     }
 
 }

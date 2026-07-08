@@ -3,9 +3,11 @@ package com.rra.project.riotrestapi.dto.requested;
 import com.rra.project.riotrestapi.dto.fetched.InfoDto;
 import com.rra.project.riotrestapi.dto.fetched.ParticipantDto;
 import com.rra.project.riotrestapi.dto.fetched.PerkStyleDto;
-import com.rra.project.riotrestapi.dto.requested.common.IdNamePair;
+import com.rra.project.riotrestapi.service.datadragon.datatypes.IdNamePair;
 import com.rra.project.riotrestapi.service.datadragon.DataDragonService;
 import com.rra.project.riotrestapi.service.datadragon.datatypes.AugmentData;
+import com.rra.project.riotrestapi.service.datadragon.datatypes.ChampionData;
+import com.rra.project.riotrestapi.service.datadragon.datatypes.IdNameImageData;
 
 import java.util.List;
 
@@ -14,7 +16,7 @@ public record PlayerDisplayInfoDto(
         String tagline,
         ChampionData championData,
         int level,
-        List<IdNameImage> summonerSpells,
+        List<IdNameImageData> summonerSpells,
         int kills,
         int deaths,
         int assists,
@@ -54,9 +56,9 @@ public record PlayerDisplayInfoDto(
                 }
             }
 
-            IdNameImage keystone = new IdNameImage(keystoneId, dataDragonService.getRuneName(keystoneId));
-            IdNameImage primaryStyle = new IdNameImage(primaryStyleId, dataDragonService.getRuneName(primaryStyleId));
-            IdNameImage subStyle = new IdNameImage(subStyleId, dataDragonService.getRuneName(subStyleId));
+            IdNameImageData keystone = dataDragonService.getRuneName(keystoneId);
+            IdNameImageData primaryStyle = dataDragonService.getRuneName(primaryStyleId);
+            IdNameImageData subStyle = dataDragonService.getRuneName(subStyleId);
 
             PerksInfo playerPerks = new PerksInfo(keystone, primaryStyle, subStyle);
 
@@ -72,25 +74,25 @@ public record PlayerDisplayInfoDto(
         return new PlayerDisplayInfoDto(
                 player.riotIdGameName(),
                 player.riotIdTagline(),
-                new ChampionData(player.championId(), dataDragonService.getChampionName(player.championId())),
+                dataDragonService.getChampionData(player.championId()),
                 player.champLevel(),
                 List.of(
-                        new IdNameImage(player.summoner1Id(), dataDragonService.getSummonerSpellName(player.summoner1Id())),
-                        new IdNameImage(player.summoner2Id(), dataDragonService.getSummonerSpellName(player.summoner2Id()))
+                        dataDragonService.getSummonerSpellName(player.summoner1Id()),
+                        dataDragonService.getSummonerSpellName(player.summoner2Id())
                 ),
                 player.kills(),
                 player.deaths(),
                 player.assists(),
                 player.totalDamageDealtToChampions(),
                 List.of(
-                        new IdNamePair(player.item0(), dataDragonService.getItemName(player.item0())),
-                        new IdNamePair(player.item1(), dataDragonService.getItemName(player.item1())),
-                        new IdNamePair(player.item2(), dataDragonService.getItemName(player.item2())),
-                        new IdNamePair(player.item3(), dataDragonService.getItemName(player.item3())),
-                        new IdNamePair(player.item4(), dataDragonService.getItemName(player.item4())),
-                        new IdNamePair(player.item5(), dataDragonService.getItemName(player.item5())),
-                        new IdNamePair(player.item6(), dataDragonService.getItemName(player.item6())),
-                        new IdNamePair(player.roleBoundItem(), dataDragonService.getItemName(player.roleBoundItem()))
+                        dataDragonService.getItemName(player.item0()),
+                        dataDragonService.getItemName(player.item1()),
+                        dataDragonService.getItemName(player.item2()),
+                        dataDragonService.getItemName(player.item3()),
+                        dataDragonService.getItemName(player.item4()),
+                        dataDragonService.getItemName(player.item5()),
+                        dataDragonService.getItemName(player.item6()),
+                        dataDragonService.getItemName(player.roleBoundItem())
                 ),
                 modeData
         );
@@ -111,20 +113,10 @@ public record PlayerDisplayInfoDto(
     ) implements ModeData {}
 
     public record PerksInfo(
-            IdNameImage keystone,
-            IdNameImage primaryStyle,
-            IdNameImage subStyle
+            IdNameImageData keystone,
+            IdNameImageData primaryStyle,
+            IdNameImageData subStyle
     ){}
 
-    public record IdNameImage(
-            int id,
-            DataDragonService.NameImagePair nameImage
-    ){}
-
-    public record ChampionData(
-            int key,
-            DataDragonService.ChampIdNamePair idName
-    ){}
-
-    public sealed interface ModeData permits DefaultModeData, ArenaModeData{};
+    public sealed interface ModeData permits DefaultModeData, ArenaModeData {};
 }

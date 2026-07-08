@@ -1,4 +1,4 @@
-package com.rra.project.riotrestapi.dto.requested.common;
+package com.rra.project.riotrestapi.service.datadragon.datatypes;
 
 public record IdNamePair(
         int id,

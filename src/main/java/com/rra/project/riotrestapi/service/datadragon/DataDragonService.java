@@ -1,7 +1,8 @@
 package com.rra.project.riotrestapi.service.datadragon;
 
 
-import com.rra.project.riotrestapi.service.datadragon.datatypes.AugmentData;
+import com.rra.project.riotrestapi.service.datadragon.datatypes.*;
+
 import jakarta.annotation.PostConstruct;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -16,12 +17,12 @@ public class DataDragonService {
 
     private final DataDragonClient dataDragonClient;
 
-    private volatile HashMap<Integer, String> itemNames = new HashMap<>();
-    private volatile HashMap<Integer, NameImagePair> runeNames = new HashMap<>();
-    private volatile HashMap<Integer, NameImagePair> summonerSpellNames = new HashMap<>();
+    private volatile HashMap<Integer, IdNamePair> itemNames = new HashMap<>();
+    private volatile HashMap<Integer, IdNameImageData> runeNames = new HashMap<>();
+    private volatile HashMap<Integer, IdNameImageData> summonerSpellNames = new HashMap<>();
     private volatile HashMap<Integer, AugmentData> augmentData = new HashMap<>();
-    private volatile HashMap<Integer, MapModeNamePair> gameModes = new HashMap<>();
-    private volatile HashMap<Integer, ChampIdNamePair> championNames = new HashMap<>();
+    private volatile HashMap<Integer, GameModeData> gameModes = new HashMap<>();
+    private volatile HashMap<Integer, ChampionData> championData = new HashMap<>();
 
     public DataDragonService(DataDragonClient dataDragonClient) {
         this.dataDragonClient = dataDragonClient;
@@ -64,35 +65,35 @@ public class DataDragonService {
     }
 
     private void updateItems(JsonNode json){
-        HashMap<Integer, String> result = new HashMap<>();
+        HashMap<Integer, IdNamePair> result = new HashMap<>();
 
         Set<Map.Entry<String, JsonNode>> data = json.path("data").properties();
 
         for(var entry : data){
             int k = Integer.parseInt(entry.getKey());
             String v = entry.getValue().path("name").asString();
-            result.put(k, v);
+            result.put(k, new IdNamePair(k,v));
         }
 
         this.itemNames = result;
     }
 
     private void updateRunes(JsonNode json){
-        HashMap<Integer, NameImagePair> result = new HashMap<>();
+        HashMap<Integer, IdNameImageData> result = new HashMap<>();
 
         for(var style : json){
             int k1 = style.path("id").intValue();
-            String v01 = style.path("name").asString();
-            String v02 = style.path("icon").asString();
-            result.put(k1, new NameImagePair(v01, v02));
+            String v11 = style.path("name").asString();
+            String v12 = style.path("icon").asString();
+            result.put(k1, new IdNameImageData(k1, v11, v12));
             var slots = style.path("slots");
             for(var slot : slots){
                 var runes = slot.path("runes");
                 for(var rune : runes){
                     int k2 = rune.path("id").intValue();
-                    String v11 = rune.path("name").asString();
-                    String v12 = rune.path("icon").asString();
-                    result.put(k2, new NameImagePair(v11, v12));
+                    String v21 = rune.path("name").asString();
+                    String v22 = rune.path("icon").asString();
+                    result.put(k2, new IdNameImageData(k2 ,v21, v22));
                 }
             }
         }
@@ -101,32 +102,35 @@ public class DataDragonService {
     }
 
     private void updateSummonerSpells(JsonNode json){
-        HashMap<Integer, NameImagePair> result = new HashMap<>();
+        HashMap<Integer, IdNameImageData> result = new HashMap<>();
 
         Set<Map.Entry<String, JsonNode>> data = json.path("data").properties();
         for(var entry : data){
             int k = Integer.parseInt(entry.getValue().path("key").asString());
             String v1 = entry.getValue().path("name").asString();
             String v2 = entry.getValue().path("image").path("full").asString();
-            result.put(k, new NameImagePair(v1, v2));
+            result.put(k, new IdNameImageData(k, v1, v2));
         }
         this.summonerSpellNames = result;
     }
 
     private void updateGameModes(JsonNode json){
-        HashMap<Integer, MapModeNamePair> result = new HashMap<>();
+        HashMap<Integer, GameModeData> result = new HashMap<>();
 
         for(var gameMode : json){
             int k = gameMode.path("queueId").intValue();
             String map =  gameMode.path("map").asString();
             String mode = gameMode.path("description").asString();
             if(mode.endsWith(" games")) mode = mode.substring(0, mode.length()-" games".length());
-            var v = new MapModeNamePair(map, mode);
+            var v = new GameModeData(k, map, mode);
             result.put(k, v);
         }
-        //Arena 3x8 and Custom are currently missing from static.dev json, leaving it hardcoded for now
-        result.computeIfAbsent(1750, (k) -> new MapModeNamePair("Rings of Wrath", "Arena 3v3"));
-        result.computeIfAbsent(3130, (k) -> new MapModeNamePair("", "Custom"));
+
+        //Arena 3x8,Custom and Ranked 5s are currently missing from static.dev json, leaving it hardcoded for now
+        result.computeIfAbsent(710, (k) -> new GameModeData(710, "Summoners Rift", "Ranked 5s"));
+        result.computeIfAbsent(1750, (k) -> new GameModeData(1750,"Rings of Wrath", "Arena 3v3"));
+        result.computeIfAbsent(3130, (k) -> new GameModeData(3130,"", "Custom"));
+
         this.gameModes = result;
     }
 
@@ -147,58 +151,38 @@ public class DataDragonService {
     }
 
     public void updateChampions(JsonNode json){
-        HashMap<Integer, ChampIdNamePair> result = new HashMap<>();
+        HashMap<Integer, ChampionData> result = new HashMap<>();
 
         JsonNode data = json.path("data");
         for(var champion : data){
             int k = Integer.parseInt(champion.path("key").asString());
             String v1 = champion.path("id").asString();
             String v2 = champion.path("name").asString();
-            result.put(k, new ChampIdNamePair(v1, v2));
+            result.put(k, new ChampionData(k, v1, v2));
         }
-        this.championNames = result;
+        this.championData = result;
     }
 
 
 
-    public String getItemName(int id){
-        return this.itemNames.get(id);
+    public IdNamePair getItemName(int id){
+        return this.itemNames.containsKey(id) ? this.itemNames.get(id) : new IdNamePair(-1, "unknown");
     }
 
-    public NameImagePair getRuneName(int id){
-        return this.runeNames.get(id);
+    public IdNameImageData getRuneName(int id){return this.runeNames.containsKey(id) ? this.runeNames.get(id) : new IdNameImageData(-1, "unknown", "unknown");}
+
+    public IdNameImageData getSummonerSpellName(int id){return this.summonerSpellNames.containsKey(id) ? this.summonerSpellNames.get(id) : new IdNameImageData(-1, "unknown", "unknown");}
+
+    public GameModeData getGameModeName(int id){
+        return this.gameModes.containsKey(id) ? this.gameModes.get(id) : new GameModeData(-1, "unknown", "unknown");
     }
 
-    public NameImagePair getSummonerSpellName(int id){
-        return this.summonerSpellNames.get(id);
-    }
+    public AugmentData getAugmentData(int id){ return this.augmentData.containsKey(id)  ? this.augmentData.get(id) : new AugmentData(-1, "unknown", "unknown", "unknown"); }
 
-    public MapModeNamePair getGameModeName(int id){
-        return this.gameModes.get(id);
-    }
-
-    public AugmentData getAugmentData(int id){ return this.augmentData.get(id) != null ? this.augmentData.get(id) : new AugmentData(0, "empty", "noIcon", "noIcon"); }
-
-    public ChampIdNamePair getChampionName(int id){ return this.championNames.get(id); }
+    public ChampionData getChampionData(int id){ return this.championData.containsKey(id) ? this.championData.get(id) : new ChampionData(-1, "unknown", "unknown");}
 
     public String getLatestVersion(){
         return dataDragonClient.getCurrentVersion();
     }
 
-
-
-    public record MapModeNamePair(
-             String map,
-             String modeName
-    ){}
-
-    public record NameImagePair(
-            String name,
-            String image
-    ){}
-
-    public record ChampIdNamePair(
-            String id,
-            String name
-    ){}
 }
