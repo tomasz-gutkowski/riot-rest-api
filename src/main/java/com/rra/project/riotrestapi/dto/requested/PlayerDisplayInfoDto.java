@@ -92,7 +92,8 @@ public record PlayerDisplayInfoDto(
                         dataDragonService.getItemName(player.item4()),
                         dataDragonService.getItemName(player.item5()),
                         dataDragonService.getItemName(player.item6()),
-                        dataDragonService.getItemName(player.roleBoundItem())
+                        dataDragonService.getItemName(player.roleBoundItem() == null ? 0 : player.roleBoundItem())
+                        //temp fix for games that took place before season16 (treats roleBoundItem as empty slot)
                 ),
                 modeData
         );

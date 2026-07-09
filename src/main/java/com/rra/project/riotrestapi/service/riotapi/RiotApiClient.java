@@ -70,9 +70,9 @@ public class RiotApiClient {
                 .body(LeagueEntryDto[].class);
     }
 
-    public List<String> callForMatchesList(ServerID serverId, String puuid, int start, int count) {
-        // "/lol/match/v5/matches/by-puuid/{puuid}/ids?start={start}&count={count}", puuid, start, count
-        String uri = String.format("/lol/match/v5/matches/by-puuid/%s/ids?start=%d&count=%d", puuid, start, count);
+    public List<String> callForMatchesList(ServerID serverId, String puuid, long endTime, int start, int count) {
+        // "/lol/match/v5/matches/by-puuid/{puuid}/ids?endTime={timestamp}&start={start}&count={count}", puuid, endTime, start, count
+        String uri = String.format("/lol/match/v5/matches/by-puuid/%s/ids?endTime=%d&start=%d&count=%d", puuid, endTime, start, count);
         RestClient regionClient = getRegionClient(serverId);
 
         return callRiotApi(regionClient, uri)

@@ -33,12 +33,13 @@ public class SummonerProfileController {
     }
 
     //request for list of match data
-    @GetMapping("/matches/{serverId}/{puuid}")
+    @GetMapping("/matches/{serverId}/{puuid}/{endTime}")
     public List<MatchInfoDto> displayMatchList(@PathVariable ServerID serverId,
                                                              @PathVariable String puuid,
+                                                             @PathVariable long endTime,
                                                              @RequestParam(defaultValue = "0") int start,
                                                              @RequestParam(defaultValue = "20") int count){
-        return riotApiService.getMatchInfoDtos(serverId, puuid, start, count);
+        return riotApiService.getMatchInfoDtos(serverId, puuid, endTime, start, count);
     }
 
     //request for specific match data

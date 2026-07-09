@@ -35,8 +35,8 @@ public class RiotApiService {
         return ProfileResponseDto.from(summoner, account, leagueEntryDtoArr);
     }
 
-    public List<MatchDto> getMatchDtos(ServerID serverId, String puuid, int start, int count) {
-        List<String> matches = riotApiClient.callForMatchesList(serverId, puuid, start, count);
+    public List<MatchDto> getMatchDtos(ServerID serverId, String puuid, long endTime, int start, int count) {
+        List<String> matches = riotApiClient.callForMatchesList(serverId, puuid, endTime, start, count);
         List<MatchDto> matchDtos = new ArrayList<>();
         for (String matchId : matches) {
             matchDtos.add(riotApiClient.callForMatchDto(serverId, matchId));
@@ -44,8 +44,8 @@ public class RiotApiService {
         return matchDtos;
     }
 
-    public List<MatchInfoDto> getMatchInfoDtos(ServerID serverId, String puuid, int start, int count) {
-        List<MatchDto> matchDtos = getMatchDtos(serverId, puuid, start, count);
+    public List<MatchInfoDto> getMatchInfoDtos(ServerID serverId, String puuid, long endTime, int start, int count) {
+        List<MatchDto> matchDtos = getMatchDtos(serverId, puuid, endTime, start, count);
         List<MatchInfoDto> matchInfoDtos = new ArrayList<>();
 
         matchDtos.forEach(matchDto -> {
