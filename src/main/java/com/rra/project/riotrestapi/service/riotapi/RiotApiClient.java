@@ -16,10 +16,28 @@ import org.springframework.web.client.RestClient;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import java.time.Duration;
 
 @Component
 public class RiotApiClient {
+
+    private final Bandwidth perSecondLimit = Bandwidth.builder()
+            .capacity(20)
+            .refillIntervally(20, Duration.ofSeconds(1))
+            .build();
+
+    private final Bandwidth per2MinuteLimit = Bandwidth.builder()
+            .capacity(100)
+            .refillIntervally(100, Duration.ofMinutes(2))
+            .build();
+
+    private final Bucket bucket = Bucket.builder()
+            .addLimit(per2MinuteLimit)
+            .addLimit(perSecondLimit)
+            .build();
+
 
     @Value("${riot.api.key}")
     private String apiKey;
@@ -90,6 +108,8 @@ public class RiotApiClient {
     }
 
     public RestClient.ResponseSpec callRiotApi(RestClient client, String uri){
+        if(!bucket.tryConsume(1)) throw new RateLimitException("Global rate limit exceeded");
+
         return client.get()
                 .uri(uri)
                 .retrieve()
@@ -101,7 +121,7 @@ public class RiotApiClient {
                         case 404 -> throw new ResourceNotFoundException("Resource not found");
                         case 405 -> throw new MethodNotAllowedException("Method not allowed");
                         case 415 -> throw new UnsupportedMediaTypeException("Unsupported media type");
-                        case 429 -> throw new RateLimitException("Rate limit exceeded");
+                        case 429 -> throw new RateLimitException("Riot API rate limit exceeded");
                         default  -> throw new BadRequestException("Client error: " + response.getStatusCode());
                     }
                 })
