@@ -49,7 +49,7 @@ public class SummonerProfileController {
                                                             @PathVariable String puuid,
                                                             @PathVariable long endTime,
                                                             @RequestParam(defaultValue = "0") int start,
-                                                            @RequestParam(defaultValue = "20") int count,
+                                                            @RequestParam(defaultValue = "10") int count,
                                                             HttpServletRequest request){
         int tokenCost = 10*(count+1);
         consumeTokens(request, tokenCost);
