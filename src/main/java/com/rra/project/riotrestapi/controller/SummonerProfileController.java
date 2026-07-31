@@ -74,8 +74,8 @@ public class SummonerProfileController {
     private Bucket buildBucket(){
         return Bucket.builder()
                 .addLimit(Bandwidth.builder()
-                        .capacity(400)
-                        .refillGreedy(400, Duration.ofMinutes(1))
+                        .capacity(360)
+                        .refillGreedy(220, Duration.ofMinutes(1))
                         .build())
                 .build();
     }
