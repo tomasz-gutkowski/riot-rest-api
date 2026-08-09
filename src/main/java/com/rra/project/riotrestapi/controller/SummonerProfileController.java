@@ -34,7 +34,7 @@ public class SummonerProfileController {
 
     //request for basic profile data
     @GetMapping("/profile/{serverId}/{gameName}/{tagLine}")
-    public ProfileResponseDto displaySummonerProfile(@PathVariable ServerID serverId,
+    public ProfileResponseDto getSummonerProfile(@PathVariable ServerID serverId,
                                                                     @PathVariable String gameName,
                                                                     @PathVariable String tagLine,
                                                                     HttpServletRequest request) {
@@ -45,7 +45,7 @@ public class SummonerProfileController {
 
     //request for list of match data
     @GetMapping("/matches/{serverId}/{puuid}/{endTime}")
-    public List<MatchInfoDto> displayMatchList(@PathVariable ServerID serverId,
+    public List<MatchInfoDto> getMatchList(@PathVariable ServerID serverId,
                                                             @PathVariable String puuid,
                                                             @PathVariable long endTime,
                                                             @RequestParam(defaultValue = "0") int start,
@@ -58,7 +58,7 @@ public class SummonerProfileController {
 
     //request for specific match data
     @GetMapping("/match/{serverId}/{matchId}")
-    public MatchDetailsDto displayMatchDetails(@PathVariable ServerID serverId,
+    public MatchDetailsDto getMatchDetails(@PathVariable ServerID serverId,
                                                             @PathVariable String matchId,
                                                             HttpServletRequest request) {
         consumeTokens(request, 5);
@@ -66,7 +66,7 @@ public class SummonerProfileController {
     }
 
     @GetMapping("/ddragon/latest")
-    public String displayLatestDdragon(HttpServletRequest request) {
+    public String getLatestDdragon(HttpServletRequest request) {
         consumeTokens(request, 2);
         return riotApiService.getDatadragonLatest();
     }
