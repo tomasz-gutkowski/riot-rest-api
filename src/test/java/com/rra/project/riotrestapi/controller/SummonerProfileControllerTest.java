@@ -2,6 +2,7 @@ package com.rra.project.riotrestapi.controller;
 
 import com.rra.project.riotrestapi.exceptions.RestExceptionHandler;
 import com.rra.project.riotrestapi.exceptions.code4xx.RateLimitException;
+import com.rra.project.riotrestapi.service.ratelimiters.ControllerRateLimiter;
 import com.rra.project.riotrestapi.service.riotapi.RiotApiService;
 import com.rra.project.riotrestapi.service.riotapi.ServerID;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +19,7 @@ import static com.rra.project.riotrestapi.service.riotapi.ServerID.EUW1;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = SummonerProfileController.class)
@@ -28,6 +30,8 @@ class SummonerProfileControllerTest {
 
     @MockitoBean
     private RiotApiService riotApiService;
+    @MockitoBean
+    private ControllerRateLimiter controllerRateLimiter;
     @MockitoBean
     private CacheManager cacheManager;
 
@@ -72,7 +76,7 @@ class SummonerProfileControllerTest {
             int defaultStart = 0;
             int defaultCount = 10;
             mockMvc.perform(get("/api/matches/{serverId}/{puuid}/{endTime}", serverId.name(), puuid, endTime))
-                    .andExpect(status().isOk());
+                    .andDo(print()).andExpect(status().isOk());
 
 
             verify(riotApiService).getMatchInfoDtos(serverId, puuid, endTime, defaultStart, defaultCount);
@@ -88,6 +92,7 @@ class SummonerProfileControllerTest {
                                 .param("count", String.valueOf(customCount)))
                             .andExpect(status().isOk());
 
+
             verify(riotApiService).getMatchInfoDtos(serverId, puuid, endTime, customStart, customCount);
         }
 
@@ -98,7 +103,7 @@ class SummonerProfileControllerTest {
             mockMvc.perform(get("/api/matches/{serverId}/{puuid}/{endTime}", invalidServer, puuid, endTime))
                     .andExpect(status().isBadRequest());
 
-            verify(riotApiService, never()).getMatchInfoDtos(any(), any(), any(), any(), any());
+            verify(riotApiService, never()).getMatchInfoDtos(any(), any(), anyLong(), anyInt(), anyInt());
         }
     }
 

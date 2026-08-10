@@ -6,30 +6,26 @@ package com.rra.project.riotrestapi.controller;
 import com.rra.project.riotrestapi.dto.requested.MatchDetailsDto;
 import com.rra.project.riotrestapi.dto.requested.MatchInfoDto;
 import com.rra.project.riotrestapi.dto.requested.ProfileResponseDto;
-import com.rra.project.riotrestapi.exceptions.code4xx.RateLimitException;
+import com.rra.project.riotrestapi.service.ratelimiters.ControllerRateLimiter;
 import com.rra.project.riotrestapi.service.riotapi.ServerID;
 import com.rra.project.riotrestapi.service.riotapi.RiotApiService;
-import io.github.bucket4j.Bandwidth;
-import io.github.bucket4j.Bucket;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+
 
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "${cors.allowed-origin}")
 public class SummonerProfileController {
 
-    private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
-
     private final RiotApiService riotApiService;
+    private final ControllerRateLimiter rateLimiter;
 
-    SummonerProfileController(RiotApiService riotApiService) {
+    SummonerProfileController(RiotApiService riotApiService, ControllerRateLimiter rateLimiter) {
         this.riotApiService = riotApiService;
+        this.rateLimiter = rateLimiter;
     }
 
     //request for basic profile data
@@ -38,7 +34,7 @@ public class SummonerProfileController {
                                                                     @PathVariable String gameName,
                                                                     @PathVariable String tagLine,
                                                                     HttpServletRequest request) {
-        consumeTokens(request, 30);
+        rateLimiter.consumeTokens(request, 30);
 
         return riotApiService.getProfileResponseDto(serverId, gameName, tagLine);
     }
@@ -52,7 +48,7 @@ public class SummonerProfileController {
                                                             @RequestParam(defaultValue = "10") int count,
                                                             HttpServletRequest request){
         int tokenCost = 10*(count+1);
-        consumeTokens(request, tokenCost);
+        rateLimiter.consumeTokens(request, tokenCost);
         return riotApiService.getMatchInfoDtos(serverId, puuid, endTime, start, count);
     }
 
@@ -61,29 +57,15 @@ public class SummonerProfileController {
     public MatchDetailsDto getMatchDetails(@PathVariable ServerID serverId,
                                                             @PathVariable String matchId,
                                                             HttpServletRequest request) {
-        consumeTokens(request, 5);
+        rateLimiter.consumeTokens(request, 5);
         return riotApiService.getMatchDetailsDto(serverId,matchId);
     }
 
     @GetMapping("/ddragon/latest")
     public String getLatestDdragon(HttpServletRequest request) {
-        consumeTokens(request, 2);
+        rateLimiter.consumeTokens(request, 2);
         return riotApiService.getDatadragonLatest();
     }
 
-    private Bucket buildBucket(){
-        return Bucket.builder()
-                .addLimit(Bandwidth.builder()
-                        .capacity(360)
-                        .refillGreedy(220, Duration.ofMinutes(1))
-                        .build())
-                .build();
-    }
-
-    private void consumeTokens(HttpServletRequest request, int tokens) {
-        String ip = request.getRemoteAddr();
-        Bucket bucket = buckets.computeIfAbsent(ip, key -> buildBucket());
-        if(!bucket.tryConsume(tokens)) throw new RateLimitException("Rate limit exceeded, try again later");
-    }
 
 }

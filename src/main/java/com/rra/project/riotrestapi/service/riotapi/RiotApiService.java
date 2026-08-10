@@ -4,8 +4,6 @@ import com.rra.project.riotrestapi.dto.fetched.*;
 import com.rra.project.riotrestapi.dto.requested.*;
 
 import com.rra.project.riotrestapi.service.datadragon.DataDragonService;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,12 +20,8 @@ public class RiotApiService {
         this.dataDragonService = dataDragonService;
     }
 
-    public AccountDto getAccountDto(ServerID serverId, String gameName, String tagLine) {
-        return riotApiClient.callForAccountDto(serverId, gameName, tagLine);
-    }
-
     public ProfileResponseDto getProfileResponseDto(ServerID serverId, String gameName, String tagLine) {
-        AccountDto account = getAccountDto(serverId, gameName, tagLine);
+        AccountDto account = riotApiClient.callForAccountDto(serverId, gameName, tagLine);
         String puuid = account.puuid();
         SummonerDto summoner = riotApiClient.callForSummonerDto(serverId, puuid);
         LeagueEntryDto[] leagueEntryDtoArr = riotApiClient.callForLeagueEntryDtoArr(serverId, puuid);
