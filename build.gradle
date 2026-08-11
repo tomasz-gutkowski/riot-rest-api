@@ -14,6 +14,10 @@ java {
     }
 }
 
+configurations {
+    mockitoAgent
+}
+
 repositories {
     mavenCentral()
 }
@@ -25,10 +29,14 @@ dependencies {
     implementation 'com.github.ben-manes.caffeine:caffeine'
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    mockitoAgent('org.mockito:mockito-core') {
+        transitive = false
+    }
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+    jvmArgs += "-javaagent:${configurations.mockitoAgent.asPath}"
 }
 
 
