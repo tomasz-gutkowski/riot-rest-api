@@ -12,21 +12,23 @@ Backend for **Paradox** - a League of Legends stats and match history lookup too
 - **Rate limiting** (Bucket4j) applied both on the Server → Riot API side, to respect the provider's rate limits, and on the Client → Server side, to prevent abuse of the service
 - **Response caching** (Caffeine) for immutable Riot API lookups like match details
 - **Structured error handling** mapping Riot's HTTP error responses to a dedicated exception hierarchy (`4xx`/`5xx`), returned as consistent JSON error bodies
+- **Unit tests** covering the REST controller and `RiotApiService`, including error and edge-case handling
 ## Tech stack
 - Java 21
 - Spring Boot 4 (Spring MVC, Spring Cache)
 - Gradle
 - Bucket4j
 - Caffeine (local in-memory caching)
+- JUnit 5 + Mockito
 - Docker
 - Riot Games API + Data Dragon & Community Dragon
 ## API overview
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/profile/{serverId}/{gameName}/{tagLine}` | Returns summoner & ranked profile info |
-| GET | `/api/matches/{serverId}/{puuid}/{endTime}?start=&count=` | Returns a paginated list of match summary data in a specified range |
-| GET | `/api/match/{serverId}/{matchId}` | Returns detailed data for a given match |
-| GET | `/api/ddragon/latest` | Returns the Data Dragon version |
+| Method | Endpoint                                                  | Description                                                         |
+|--------|-----------------------------------------------------------|---------------------------------------------------------------------|
+| GET    | `/api/profile/{serverId}/{gameName}/{tagLine}`            | Returns summoner & ranked profile info                              |
+| GET    | `/api/matches/{serverId}/{puuid}/{endTime}?start=&count=` | Returns a paginated list of match summary data in a specified range |
+| GET    | `/api/match/{serverId}/{matchId}`                         | Returns detailed data for a given match                             |
+| GET    | `/api/ddragon/latest`                                     | Returns the Data Dragon version                                     |
 ## Demo
 All of the API calls above can be tested against https://riot-rest-api-backend.onrender.com (as mentioned earlier, after an extended period of inactivity, the server takes 50+ seconds to wake up), but the recommended way of accessing the service is the [Paradox frontend](https://github.com/tomasz-gutkowski/paradox-web).
 ## Getting started
@@ -49,9 +51,18 @@ docker compose up --build
 ```
 gradlew.bat bootRun
 ```
+### Running tests
+#### Unix
+```
+./gradlew test
+```
+#### Windows
+```
+gradlew.bat test
+```
 ### Environment variables
-| Variable | Description | Default |
-|---|---|---|
-| `RIOT_API_KEY` | Your Riot Games API key | ~ (required) |
+| Variable              | Description                     | Default                 |
+|-----------------------|---------------------------------|-------------------------|
+| `RIOT_API_KEY`        | Your Riot Games API key         | ~ (required)            |
 | `CORS_ALLOWED_ORIGIN` | Origin allowed to call this API | `http://localhost:5173` |
-| `PORT` | Port the server listens on | `8080` |
+| `PORT`                | Port the server listens on      | `8080`                  |
